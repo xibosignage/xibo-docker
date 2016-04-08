@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# Configure a MySQL backup
+# The backup should output to /sites/backup

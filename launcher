@@ -1,0 +1,58 @@
+#!/bin/bash
+
+# Pull in any arguments and set defaults
+# We could use getopts ?
+
+# Are we DEV or Production?
+# If production, get the latest version tag from somewhere...
+# perhaps we git pull into this repository?
+
+# Command
+# bootstrap, start, stop, destroy
+
+### Bootstrap
+
+# Bring up the docker instances
+#  -mysql
+#  -xibo-xmr:develop OR version tag
+#  -xibo-cms:develop OR version tag
+
+# In production we want to add restart policies
+
+docker run --rm --name cms-db -v $(pwd)/shared/db:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=root -d mysql:5.6
+docker run --rm --name cms-xmr -p 9107:9107 -d xibo-xmr:develop
+docker run --rm --name cms-web -p 8080:80 -d -v $(pwd)/shared/web:/var/www/xibo -v $(pwd)/shared/backup:/var/www/backup --link cms-db:mysql --link cms-xmr:9107 xibo-cms:develop
+
+## XMR
+# Call init script, passing in the host IP address for publishOn
+
+## Production
+# Run an init script in cms-web - this should
+# extract and copy the archive
+# take populate the DB with structure, constraints and data.sql
+# set LIBRARY_LOCATION
+# set ADMIN username/password
+# set XMR private and public address (private address will need to come from the )
+docker exec cms-web /root/init
+
+# Run a script in cms-web to configure a backup
+docker exec cms-web /root/config_backup
+
+## DEV
+# Exec into cms-web to get the MYSQL connection details - output them
+docker exec cms-web /root/env
+
+
+### End Bootstrap
+
+### Start
+docker start cms-db
+docker start cms-web
+### End Start
+
+### Stop
+docker stop cms-db
+docker stop cms-web
+### End Stop
+
+# Finish
