@@ -17,10 +17,13 @@ EXPOSE 50001
 
 # Copy up the various provisioning scripting
 COPY init /root/init
+RUN mkdir -p /root/xmr/tmp && mkdir -p /opt/xmr
 
 # Download and extract XMR into a convenient folder
 ADD https://github.com/xibosignage/xibo-xmr/archive/0.1.tar.gz /root/xmr
-RUN tar -xzf /root/xmr/0.1.tar.gz -C /root/xmr && mv /root/xmr/bin/xmr.phar /opt/xmr
+RUN tar --strip=1 -xzf /root/xmr/0.1.tar.gz -C /root/xmr/tmp && mv /root/xmr/tmp/bin/xmr.phar /opt/xmr
+
+RUN chown -R nobody /opt/xmr && chmod 700 /root/init
 
 # Start XMR
-CMD /usr/bin/php /opt/xmr/xmr.phar -s /bin/sh nobody
+CMD /root/init
