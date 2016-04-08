@@ -23,21 +23,11 @@ WEBSERVER_PORT=8080
 # application
 INSTANCE_NAME="xibo"
 
-# Figure out what we're doing
-case "$1" in
-  start)
-    start
-  ;;
-  stop)
-    stop
-  ;;
-  bootstrap)
-    bootstrap
-  ;;
-  destroy)
-    destroy
-  ;;
-esac
+############
+#####
+##### Library Functions
+#####
+############
 
 function bootstrap {
   ### Bootstrap
@@ -87,4 +77,22 @@ function destroy {
   docker rm $INSTANCE_NAME-cms-db
   echo "CMS containers removed. You will need to bootstrap again in order to run the CMS."
   ### End Destroy
-}  
+}
+
+# Figure out what we're doing
+case "$1" in
+  start)
+    start
+  ;;
+  stop)
+    stop
+  ;;
+  bootstrap)
+    bootstrap
+  ;;
+  destroy)
+    destroy
+  ;;
+esac
+
+  
