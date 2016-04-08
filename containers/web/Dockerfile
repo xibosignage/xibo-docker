@@ -41,26 +41,29 @@ ENV XIBO_VERSION 1.8.0-alpha3
 EXPOSE 80
 
 # Pull in the release archive for the environment
-ADD https://github.com/xibosignage/xibo-cms/releases/download/1.8.0-alpha3/xibo-cms-1.8.0-alpha3.tar.gz /var/www/xibo-cms-1.8.0-alpha3.tar.gz
+ADD https://github.com/xibosignage/xibo-cms/releases/download/${XIBO_VERSION}/xibo-cms-{XIBO_VERSON}.tar.gz /var/www/xibo-cms.tar.gz
 
-# Map a volume to this folder.
-# Our CMS files, library and cache will be in here.
+# Map a volumes to this folder.
+# Our CMS files, library, cache and backups will be in here.
+RUN mkdir -p /var/www/xibo && mkdir -p /var/www/backup
 VOLUME /var/www/xibo
-
-# Make backup folder
-RUN mkdir /var/www/backup
 VOLUME /var/www/backup
 
 # Update the default apache site with the config we created.
 COPY apache-config.conf /etc/apache2/sites-enabled/000-default.conf
 
 # Copy up the various provisioning scripting
-COPY init /root/init
-COPY env /root/env
-COPY config_backup /root/config_backup
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
 
 COPY httpd-foreground /usr/local/bin/httpd-foreground
 RUN chmod +x /usr/local/bin/httpd-foreground
 
+# Create a flag file which the bootstrapping process will delete
+# This tells us if we're doing a new install/upgrade on run
+RUN touch /CMS-FLAG
+
+ENTRYPOINT ["/entrypoint.sh"]
+
 # By default, simply start apache.
-CMD ["/usr/local/bin/httpd-foreground"]
+CMD ["/entrypoint.sh"]
