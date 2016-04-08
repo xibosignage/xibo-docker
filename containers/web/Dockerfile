@@ -24,8 +24,13 @@ RUN apt-get update && apt-get install -y \
 RUN a2enmod php5
 RUN a2enmod rewrite
 
+# Enable mcrypt extension
+RUN php5enmod mcrypt
+
 # Update the PHP.ini file
 RUN sed -i "s/error_reporting = .*$/error_reporting = E_ERROR | E_WARNING | E_PARSE/" /etc/php5/apache2/php.ini
+RUN sed -i "s/post_max_size = .*$/post_max_size = 810M/" /etc/php5/apache2/php.ini
+RUN sed -i "s/upload_max_filesize = .*$/upload_max_filesize = 800M/" /etc/php5/apache2/php.ini
 
 # Manually set up the apache environment variables
 ENV APACHE_RUN_USER www-data
@@ -41,7 +46,7 @@ ENV XIBO_VERSION 1.8.0-alpha3
 EXPOSE 80
 
 # Pull in the release archive for the environment
-ADD https://github.com/xibosignage/xibo-cms/releases/download/${XIBO_VERSION}/xibo-cms-{XIBO_VERSON}.tar.gz /var/www/xibo-cms.tar.gz
+ADD https://github.com/xibosignage/xibo-cms/releases/download/${XIBO_VERSION}/xibo-cms-${XIBO_VERSION}.tar.gz /var/www/xibo-cms.tar.gz
 
 # Map a volumes to this folder.
 # Our CMS files, library, cache and backups will be in here.
@@ -63,7 +68,4 @@ RUN chmod +x /usr/local/bin/httpd-foreground
 # This tells us if we're doing a new install/upgrade on run
 RUN touch /CMS-FLAG
 
-ENTRYPOINT ["/entrypoint.sh"]
-
-# By default, simply start apache.
 CMD ["/entrypoint.sh"]

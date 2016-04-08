@@ -1,10 +1,22 @@
 #!/bin/bash
 
 # Pull in any arguments and set defaults
-DATA_DIR=$(pwd)
-MYSQL_ROOT_PASSWORD="root"
 
+## Where should we store your user data
+# DATA_DIR=/opt/xibo
+DATA_DIR=$(pwd)
+
+## What root password would you like to use for
+## your MySQL server
+## To generate a random password, use this default
+MYSQL_ROOT_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16)
+## Alternatively uncomment the following line to set your preferred choice
+#MYSQL_ROOT_PASSWORD="root"
+
+## Which port should XMR listen on for Players?
 XMR_PLAYER_PORT=9505
+
+## Which port should the Xibo CMS Webserver listen on?
 WEBSERVER_PORT=8080
 
 # Name prefix for the containers used in this
@@ -39,7 +51,7 @@ function bootstrap {
   
   docker run --name $INSTANCE_NAME-cms-db -v $DATA_DIR/shared/db:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD -d mysql:5.6
   docker run --name $INSTANCE_NAME-cms-xmr -p $XMR_PLAYER_PORT:9505 -d xibo-xmr:develop
-  docker run --name $INSTANCE_NAME-cms-web -p $WEBSERVER_PORT:80 -d -v $DATA_DIR/shared/web:/var/www/xibo -v $(pwd)/shared/backup:/var/www/backup --link cms-db:mysql --link cms-xmr:50001 xibo-cms:develop
+  docker run --name $INSTANCE_NAME-cms-web -p $WEBSERVER_PORT:80 -e XIBO_DEV_MODE=true -e XMR_HOST=$INSTANCE_NAME-cms-xmr -d -v $DATA_DIR/shared/web:/var/www/xibo -v $DATA_DIR/shared/backup:/var/www/backup --link $INSTANCE_NAME-cms-db:mysql --link $INSTANCE_NAME-cms-xmr:50001 xibo-cms:develop
   
   echo "CMS is running"
 }
@@ -57,7 +69,7 @@ function start {
 function stop {
   ### Stop
   echo "Stopping CMS"
-  docker stop $INSTANE_NAME-cms-web
+  docker stop $INSTANCE_NAME-cms-web
   docker stop $INSTANCE_NAME-cms-xmr
   docker stop $INSTANCE_NAME-cms-db
   echo "CMS is stopped"

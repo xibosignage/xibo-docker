@@ -1,5 +1,23 @@
 #!/bin/bash
 
+if [ "$XIBO_DEV_MODE" == "true" ]
+then
+  # Print MySQL connection details
+  echo "MySQL Connection Details:"
+  echo "Username: root"
+  echo "Password: $MYSQL_ENV_MYSQL_ROOT_PASSWORD"
+  echo "Host: mysql"
+  echo ""
+  echo "XMR Connection Details:"
+  echo "Host: $XMR_HOST"
+  echo "CMS Port: 50001"
+  echo "Player Port: 9505"
+  echo ""
+  echo "Starting Webserver"
+  /usr/local/bin/httpd-foreground
+  exit $?
+fi
+
 # Detect if we're going to run an upgrade
 if [ -e "/CMS_FLAG" ]
 then
@@ -26,7 +44,7 @@ then
   then
     # This is a fresh install so bootstrap the whole
     # system
-    
+    echo "New install"
     # Write settings.php
 
     # Set LIBRARY_LOCATION
