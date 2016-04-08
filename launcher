@@ -19,9 +19,9 @@
 
 # In production we want to add restart policies
 
-docker run --rm --name cms-db -v $(pwd)/shared/db:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=root -d mysql:5.6
-docker run --rm --name cms-xmr -p 9107:9107 -d xibo-xmr:develop
-docker run --rm --name cms-web -p 8080:80 -d -v $(pwd)/shared/web:/var/www/xibo -v $(pwd)/shared/backup:/var/www/backup --link cms-db:mysql --link cms-xmr:9107 xibo-cms:develop
+docker run --name cms-db -v $(pwd)/shared/db:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=root -d mysql:5.6
+docker run --name cms-xmr -p 9505:9505 -d xibo-xmr:develop
+docker run --name cms-web -p 8080:80 -d -v $(pwd)/shared/web:/var/www/xibo -v $(pwd)/shared/backup:/var/www/backup --link cms-db:mysql --link cms-xmr:9107 xibo-cms:develop
 
 ## XMR
 # Call init script, passing in the host IP address for publishOn
