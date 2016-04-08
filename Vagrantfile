@@ -25,6 +25,15 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
       args: "-p 9505:9505"
     d.run "cms-web",
       image: "xibo-cms:develop",
-      args: "-p 8080:80 -v /vagrant/shared/web:/var/www/xibo -v /vagrant/shared/backup:/var/www/backup --link cms-db:mysql"
+      args: "-p 8080:80 -e XIBO_DEV_MODE=true -v /vagrant/shared/web:/var/www/xibo -v /vagrant/shared/backup:/var/www/backup --link cms-db:mysql --link cms-xmr:50000"
   end
+
+  # Run a shell provisioner to restart the docker cms-web container (to map the shared folder correctly)
+  config.vm.provision "shell",
+    inline: "docker restart cms-web",
+    run: "always"
+
+  config.vm.provision "shell",
+    inline: "/sbin/ifconfig eth1 | grep 'inet addr:' | cut -d: -f2 | awk '{ print $1}'",
+    run: "always"
 end
