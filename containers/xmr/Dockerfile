@@ -17,11 +17,11 @@ EXPOSE 50001
 
 # Copy up the various provisioning scripting
 COPY init /root/init
-RUN mkdir -p /root/xmr/tmp && mkdir -p /opt/xmr
+RUN mkdir -p /root/xmr && mkdir -p /opt/xmr
 
 # Download and extract XMR into a convenient folder
 ADD https://github.com/xibosignage/xibo-xmr/archive/0.1.tar.gz /root/xmr
-RUN tar --strip=1 -xzf /root/xmr/0.1.tar.gz -C /root/xmr/tmp && mv /root/xmr/tmp/bin/xmr.phar /opt/xmr
+RUN tar --strip=2 -xzf /root/xmr/0.1.tar.gz -C /opt/xmr --wildcards \*/bin/xmr.phar
 
 RUN chown -R nobody /opt/xmr && chmod 700 /root/init
 
