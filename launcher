@@ -73,6 +73,19 @@ function stop {
 function destroy {
   ### Destroy
   echo "Destroying CMS Docker Containers (your data is safe!)"
+  docker stop $INSTANCE_NAME-cms-web
+  docker stop $INSTANCE_NAME-cms-xmr
+  docker stop $INSTANCE_NAME-cms-db
+  docker rm $INSTANCE_NAME-cms-web
+  docker rm $INSTANCE_NAME-cms-xmr
+  docker rm $INSTANCE_NAME-cms-db
+  echo "CMS containers removed. You will need to bootstrap again in order to run the CMS."
+  ### End Destroy
+}
+
+function force-destroy {
+  ### Force Destroy
+  echo "Force-Destroying CMS Docker Containers (your data is probably safe!)"
   docker kill $INSTANCE_NAME-cms-web
   docker kill $INSTANCE_NAME-cms-xmr
   docker kill $INSTANCE_NAME-cms-db
@@ -87,12 +100,14 @@ function usage {
   echo "Usage: $0 COMMAND"
   echo ""
   echo "COMMAND:"
-  echo "  bootstrap - Build a new environment from scratch"
-  echo "  start - start your existing environment"
-  echo "  stop - stop your existing environment"
-  echo "  destroy - destroy your existing environment. User data persists"
-  echo "  rebuild - destroy then bootstrap persisting user data"
-  echo "  upgrade - see rebuild"
+  echo "  bootstrap        Build a new environment from scratch"
+  echo "  start            Start your existing environment"
+  echo "  stop             Stop your existing environment"
+  echo "  destroy          Destroy your existing environment."
+  echo "                   User data persists."
+  echo "  force-destroy    Kill and destroy your existing environment." 
+  echo "  rebuild          Destroy then bootstrap persisting user data"
+  echo "  upgrade          See rebuild"
   exit
 }
 
@@ -114,6 +129,9 @@ case "$1" in
   ;;
   destroy)
     destroy
+  ;;
+  force-destroy)
+    force-destroy
   ;;
   rebuild)
     destroy
