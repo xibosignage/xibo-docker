@@ -28,8 +28,9 @@ RUN a2enmod php5 && a2enmod rewrite && php5enmod mcrypt
 RUN sed -i "s/error_reporting = .*$/error_reporting = E_ERROR | E_WARNING | E_PARSE/" /etc/php5/apache2/php.ini
 RUN sed -i "s/post_max_size = .*$/post_max_size = 810M/" /etc/php5/apache2/php.ini
 RUN sed -i "s/upload_max_filesize = .*$/upload_max_filesize = 800M/" /etc/php5/apache2/php.ini
+RUN sed -i "s/max_execution_time = .*$/max_execution_time = 300/" /etc/php5/apache2/php.ini
 
-# Setup the Xibo version
+# Setup persistent environment variables
 ENV XIBO_VERSION=1.8.0-alpha3 XMR_HOST=xibo-cms-xmr
 
 # Expose port 80
