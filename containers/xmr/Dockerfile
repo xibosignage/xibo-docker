@@ -15,8 +15,7 @@ RUN apt-get update && apt-get install -y \
   php5-cli \
   php5-zmq
 
-EXPOSE 9505
-EXPOSE 50001
+EXPOSE 9505 50001
 
 # Copy up the various provisioning scripting
 COPY entrypoint.sh /entrypoint.sh
