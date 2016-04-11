@@ -92,13 +92,13 @@ then
     sed -i "s/define('SECRET_KEY','');/define('SECRET_KEY','$SECRET_KEY');/" /var/www/xibo/web/settings.php
 
     # Set LIBRARY_LOCATION
-    mysql -D cms -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h mysql -e "UPDATE \`setting\` SET \`value\`='/var/www/xibo/library/' WHERE \`setting\`='LIBRARY_LOCATION' LIMIT 1"
+    mysql -D cms -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h mysql -e "UPDATE \`setting\` SET \`value\`='/var/www/xibo/library/', \`userChange\`=0, \`userSee\`=0 WHERE \`setting\`='LIBRARY_LOCATION' LIMIT 1"
 
     # Set admin username/password
     mysql -D cms -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h mysql -e "UPDATE \`user\` SET \`UserName\`='xibo_admin', \`UserPassword\`='5f4dcc3b5aa765d61d8327deb882cf99' WHERE \`UserID\` = 1 LIMIT 1"
 
     # Set XMR public/private address
-    mysql -D cms -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h mysql -e "UPDATE \`setting\` SET \`value\`='tcp://$XMR_HOST:50001' WHERE \`setting\`='XMR_ADDRESS' LIMIT 1"
+    mysql -D cms -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h mysql -e "UPDATE \`setting\` SET \`value\`='tcp://$XMR_HOST:50001', \`userChange\`=0, \`userSee\`=0 WHERE \`setting\`='XMR_ADDRESS' LIMIT 1"
     mysql -D cms -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h mysql -e "UPDATE \`setting\` SET \`value\`='tcp://youserver:9505' WHERE \`setting\`='XMR_PUB_ADDRESS' LIMIT 1"
     mysql -D cms -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h mysql -e "UPDATE \`setting\` SET \`value\`='$CMS_KEY' WHERE \`setting\`='SERVER_KEY' LIMIT 1"
     
