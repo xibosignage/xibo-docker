@@ -38,6 +38,8 @@ EXPOSE 80
 
 # Pull in the release archive for the environment
 ADD https://github.com/xibosignage/xibo-cms/releases/download/${XIBO_VERSION}/xibo-cms-${XIBO_VERSION}.tar.gz /var/www/xibo-cms.tar.gz
+ADD https://github.com/vishnubob/wait-for-it/blob/master/wait-for-it.sh
+/usr/local/bin/wait-for-it.sh
 
 # Map a volumes to this folder.
 # Our CMS files, library, cache and backups will be in here.
@@ -51,7 +53,7 @@ COPY apache-config.conf /etc/apache2/sites-enabled/000-default.conf
 # Copy up the various provisioning scripting
 COPY entrypoint.sh /entrypoint.sh
 COPY httpd-foreground /usr/local/bin/httpd-foreground
-RUN chmod +x /entrypoint.sh /usr/local/bin/httpd-foreground
+RUN chmod +x /entrypoint.sh /usr/local/bin/httpd-foreground /usr/local/bin/wait-for-it.sh
 
 # Create a flag file which the bootstrapping process will delete
 # This tells us if we're doing a new install/upgrade on run
