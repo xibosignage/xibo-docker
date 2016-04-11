@@ -1,6 +1,8 @@
 FROM ubuntu:14.04
 MAINTAINER Dan Garner <dan@springsignage.com>
 
+ENV XMR_VERSION 0.1
+
 RUN apt-get update && apt-get install -y \
   software-properties-common
 
@@ -13,17 +15,17 @@ RUN apt-get update && apt-get install -y \
   php5-cli \
   php5-zmq
 
-EXPOSE 50001
+EXPOSE 9505 50001
 
 # Copy up the various provisioning scripting
-COPY init /root/init
-RUN mkdir -p /root/xmr/tmp && mkdir -p /opt/xmr
+COPY entrypoint.sh /entrypoint.sh
+RUN mkdir -p /root/xmr && mkdir -p /opt/xmr
 
 # Download and extract XMR into a convenient folder
-ADD https://github.com/xibosignage/xibo-xmr/archive/0.1.tar.gz /root/xmr
-RUN tar --strip=1 -xzf /root/xmr/0.1.tar.gz -C /root/xmr/tmp && mv /root/xmr/tmp/bin/xmr.phar /opt/xmr
+ADD https://github.com/xibosignage/xibo-xmr/archive/${XMR_VERSION}.tar.gz /root/xmr
+RUN tar --strip=2 -xzf /root/xmr/${XMR_VERSION}.tar.gz -C /opt/xmr --wildcards \*/bin/xmr.phar
 
-RUN chown -R nobody /opt/xmr && chmod 700 /root/init
+RUN chown -R nobody /opt/xmr && chmod 700 /entrypoint.sh
 
 # Start XMR
-CMD /root/init
+CMD ["/entrypoint.sh"]

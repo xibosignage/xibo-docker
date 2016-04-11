@@ -1,58 +1,102 @@
 #!/bin/bash
 
 # Pull in any arguments and set defaults
-# We could use getopts ?
 
-# Are we DEV or Production?
-# If production, get the latest version tag from somewhere...
-# perhaps we git pull into this repository?
+## Where should we store your user data
+# DATA_DIR=/opt/xibo
+DATA_DIR=$(pwd)
 
-# Command
-# bootstrap, start, stop, destroy
+## What version do you want to run
+CMS_VERSION=latest
+XMR_VERSION=latest
 
-### Bootstrap
+## What root password would you like to use for
+## your MySQL server
+## To generate a random password, use this default
+MYSQL_ROOT_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16)
+## Alternatively uncomment the following line to set your preferred choice
+#MYSQL_ROOT_PASSWORD="root"
 
-# Bring up the docker instances
-#  -mysql
-#  -xibo-xmr:develop OR version tag
-#  -xibo-cms:develop OR version tag
+## Which port should XMR listen on for Players?
+XMR_PLAYER_PORT=9505
 
-# In production we want to add restart policies
+## Which port should the Xibo CMS Webserver listen on?
+WEBSERVER_PORT=8080
 
-docker run --name cms-db -v $(pwd)/shared/db:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=root -d mysql:5.6
-docker run --name cms-xmr -p 9505:9505 -d xibo-xmr:develop
-docker run --name cms-web -p 8080:80 -d -v $(pwd)/shared/web:/var/www/xibo -v $(pwd)/shared/backup:/var/www/backup --link cms-db:mysql --link cms-xmr:9107 xibo-cms:develop
+# Name prefix for the containers used in this
+# application
+INSTANCE_NAME="xibo"
 
-## XMR
-# Call init script, passing in the host IP address for publishOn
+############
+#####
+##### Library Functions
+#####
+############
 
-## Production
-# Run an init script in cms-web - this should
-# extract and copy the archive
-# take populate the DB with structure, constraints and data.sql
-# set LIBRARY_LOCATION
-# set ADMIN username/password
-# set XMR private and public address (private address will need to come from the )
-docker exec cms-web /root/init
+function bootstrap {
+  ### Bootstrap
+  # Bring up the docker instances
+  #  -mysql
+  #  -xibo-xmr:develop OR version tag
+  #  -xibo-cms:develop OR version tag
+  
+  # In production we want to add restart policies
+  echo "Bootstrapping CMS Docker Containers"
+  
+  docker run --name $INSTANCE_NAME-cms-db -v $DATA_DIR/shared/db:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD -d mysql:5.6
+  docker run --name $INSTANCE_NAME-cms-xmr -p $XMR_PLAYER_PORT:9505 -d xibosignage/xibo-xmr:$XMR_VERSION
+  docker run --name $INSTANCE_NAME-cms-web -p $WEBSERVER_PORT:80 -e XIBO_DEV_MODE=true -e XMR_HOST=$INSTANCE_NAME-cms-xmr -d -v $DATA_DIR/shared/web:/var/www/xibo -v $DATA_DIR/shared/backup:/var/www/backup --link $INSTANCE_NAME-cms-db:mysql --link $INSTANCE_NAME-cms-xmr:50001 xibosignage/xibo-cms:$CMS_VERSION
+  
+  echo "CMS is running"
+}
 
-# Run a script in cms-web to configure a backup
-docker exec cms-web /root/config_backup
+function start {
+  ### Start
+  echo "Starting CMS"
+  docker start $INSTANCE_NAME-cms-db
+  docker start $INSTANCE_NAME-cms-xmr
+  docker start $INSTANCE_NAME-cms-web
+  echo "CMS is running"
+  ### End Start
+}
 
-## DEV
-# Exec into cms-web to get the MYSQL connection details - output them
-docker exec cms-web /root/env
+function stop {
+  ### Stop
+  echo "Stopping CMS"
+  docker stop $INSTANCE_NAME-cms-web
+  docker stop $INSTANCE_NAME-cms-xmr
+  docker stop $INSTANCE_NAME-cms-db
+  echo "CMS is stopped"
+  ### End Stop
+}
 
+function destroy {
+  ### Destroy
+  echo "Destroying CMS Docker Containers (your data is safe!)"
+  docker kill $INSTANCE_NAME-cms-web
+  docker kill $INSTANCE_NAME-cms-xmr
+  docker kill $INSTANCE_NAME-cms-db
+  docker rm $INSTANCE_NAME-cms-web
+  docker rm $INSTANCE_NAME-cms-xmr
+  docker rm $INSTANCE_NAME-cms-db
+  echo "CMS containers removed. You will need to bootstrap again in order to run the CMS."
+  ### End Destroy
+}
 
-### End Bootstrap
+# Figure out what we're doing
+case "$1" in
+  start)
+    start
+  ;;
+  stop)
+    stop
+  ;;
+  bootstrap)
+    bootstrap
+  ;;
+  destroy)
+    destroy
+  ;;
+esac
 
-### Start
-docker start cms-db
-docker start cms-web
-### End Start
-
-### Stop
-docker stop cms-db
-docker stop cms-web
-### End Stop
-
-# Finish
+  
