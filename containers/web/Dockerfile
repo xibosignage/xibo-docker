@@ -11,6 +11,7 @@ RUN DEBIAN_FRONTEND=noninteractive add-apt-repository ppa:alexharrington/php-zmq
 RUN apt-get update && apt-get install -y \
   apache2 \
   libapache2-mod-php5 \
+  mysql-client \
   php5-mysql \
   php5-gd \
   php-pear \
