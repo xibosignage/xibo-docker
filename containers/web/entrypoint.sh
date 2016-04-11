@@ -35,6 +35,12 @@ then
 
     # Replace settings
     mv /tmp/settings.php /var/www/xibo/web/settings.php
+  else
+    # When the mysql container is re-bootstrapped, it's password
+    # remains the same so cache a copy in this file so we know what
+    # it is if we ever need it in the future.
+    echo $MYSQL_ENV_MYSQL_ROOT_PASSWORD > /root/.mysql-root-password
+    chmod 400 /root/.mysql-root-password
   fi
   
   tar -zxf --strip=1 /var/www/xibo-cms-1.8.0-alpha3.tar.gz -C /var/www/xibo

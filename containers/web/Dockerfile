@@ -21,24 +21,13 @@ RUN apt-get update && apt-get install -y \
   php5-mcrypt \
   php5-zmq
 
-# Enable apache mods.
-RUN a2enmod php5
-RUN a2enmod rewrite
-
-# Enable mcrypt extension
-RUN php5enmod mcrypt
+# Enable apache mods and PHP extensions
+RUN a2enmod php5 && a2enmod rewrite && php5enmod mcrypt
 
 # Update the PHP.ini file
 RUN sed -i "s/error_reporting = .*$/error_reporting = E_ERROR | E_WARNING | E_PARSE/" /etc/php5/apache2/php.ini
 RUN sed -i "s/post_max_size = .*$/post_max_size = 810M/" /etc/php5/apache2/php.ini
 RUN sed -i "s/upload_max_filesize = .*$/upload_max_filesize = 800M/" /etc/php5/apache2/php.ini
-
-# Manually set up the apache environment variables
-ENV APACHE_RUN_USER www-data
-ENV APACHE_RUN_GROUP www-data
-ENV APACHE_LOG_DIR /var/log/apache2
-ENV APACHE_LOCK_DIR /var/lock/apache2
-ENV APACHE_PID_FILE /var/run/apache2.pid
 
 # Setup the Xibo version
 ENV XIBO_VERSION=1.8.0-alpha3 XMR_HOST=xibo-cms-xmr
@@ -60,10 +49,8 @@ COPY apache-config.conf /etc/apache2/sites-enabled/000-default.conf
 
 # Copy up the various provisioning scripting
 COPY entrypoint.sh /entrypoint.sh
-RUN chmod +x /entrypoint.sh
-
 COPY httpd-foreground /usr/local/bin/httpd-foreground
-RUN chmod +x /usr/local/bin/httpd-foreground
+RUN chmod +x /entrypoint.sh /usr/local/bin/httpd-foreground
 
 # Create a flag file which the bootstrapping process will delete
 # This tells us if we're doing a new install/upgrade on run
