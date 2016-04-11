@@ -41,7 +41,7 @@ ENV APACHE_LOCK_DIR /var/lock/apache2
 ENV APACHE_PID_FILE /var/run/apache2.pid
 
 # Setup the Xibo version
-ENV XIBO_VERSION 1.8.0-alpha3
+ENV XIBO_VERSION=1.8.0-alpha3 XMR_HOST=xibo-cms-xmr
 
 # Expose port 80
 EXPOSE 80
