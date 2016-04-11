@@ -38,8 +38,8 @@ EXPOSE 80
 
 # Pull in the release archive for the environment
 ADD https://github.com/xibosignage/xibo-cms/releases/download/${XIBO_VERSION}/xibo-cms-${XIBO_VERSION}.tar.gz /var/www/xibo-cms.tar.gz
-ADD https://github.com/vishnubob/wait-for-it/blob/master/wait-for-it.sh
-/usr/local/bin/wait-for-it.sh
+ADD https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh  /usr/local/bin/wait-for-it.sh
+ADD settings.php-template /tmp/settings.php-template
 
 # Map a volumes to this folder.
 # Our CMS files, library, cache and backups will be in here.
