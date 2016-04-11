@@ -47,9 +47,16 @@ then
     chmod 400 /var/www/backup/.mysql-root-password
   fi
   
+  # Drop the CMS cache (if it exists)
+  if [ -d /var/www/xibo/cache ]
+  then
+    rm -r /var/www/xibo/cache
+  fi
+  
   tar --strip=1 -zxf /var/www/xibo-cms.tar.gz -C /var/www/xibo --exclude=settings.php
   chown www-data.www-data -R /var/www/xibo/web
   chown www-data.www-data -R /var/www/xibo/install
+
   mkdir /var/www/xibo/cache
   mkdir /var/www/xibo/library
   chown www-data.www-data -R /var/www/xibo/cache /var/www/xibo/library
@@ -73,6 +80,7 @@ then
     echo "MySQL started"
     sleep 1
     
+    echo "Provisioning Database"
     # Create database
     MYSQL_USER_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16)
     mysql -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h mysql -e "CREATE DATABASE cms"
@@ -83,14 +91,16 @@ then
     mysql -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h mysql -e "GRANT ALL PRIVILEGES ON cms.* TO 'cms_user'@'%' IDENTIFIED BY '$MYSQL_USER_PASSWORD'; FLUSH PRIVILEGES;"
     echo $MYSQL_USER_PASSWORD > /var/www/backup/.mysql-user-password
     chmod 400 /var/www/backup/.mysql-user-password    
-        
+    
     # Write settings.php
+    echo "Writing settings.php"
     SECRET_KEY=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 8)
     CMS_KEY=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 8)
     cp /tmp/settings.php-template /var/www/xibo/web/settings.php
     sed -i "s/\$dbpass = .*$/\$dbpass = '$MYSQL_USER_PASSWORD';/" /var/www/xibo/web/settings.php
     sed -i "s/define('SECRET_KEY','');/define('SECRET_KEY','$SECRET_KEY');/" /var/www/xibo/web/settings.php
 
+    echo "Configuring Database Settings"
     # Set LIBRARY_LOCATION
     mysql -D cms -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h mysql -e "UPDATE \`setting\` SET \`value\`='/var/www/xibo/library/', \`userChange\`=0, \`userSee\`=0 WHERE \`setting\`='LIBRARY_LOCATION' LIMIT 1"
 
@@ -105,16 +115,18 @@ then
     mysql -D cms -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h mysql -e "UPDATE \`setting\` SET \`value\`='$CMS_KEY' WHERE \`setting\`='SERVER_KEY' LIMIT 1"
     
     # Configure Maintenance
-    
+    echo "Setting up Maintenance"
     
     # Configure MySQL Backup
-    
+    echo "Configuring Backups"
     
     # Remove the installer
+    echo "Removing the installer"
     rm /var/www/xibo/web/install/index.php
   
   fi
   rm /CMS-FLAG
 fi
 
+echo "Starting webserver"
 /usr/local/bin/httpd-foreground
