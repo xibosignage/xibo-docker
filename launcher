@@ -83,6 +83,24 @@ function destroy {
   ### End Destroy
 }
 
+function usage {
+  echo "Usage: $0 COMMAND"
+  echo ""
+  echo "COMMAND:"
+  echo "  bootstrap - Build a new environment from scratch"
+  echo "  start - start your existing environment"
+  echo "  stop - stop your existing environment"
+  echo "  destroy - destroy your existing environment. User data persists"
+  echo "  rebuild - destroy then bootstrap persisting user data"
+  echo "  upgrade - see rebuild"
+  exit
+}
+
+if [ $# -lt 1 ]
+then
+  usage
+fi
+
 # Figure out what we're doing
 case "$1" in
   start)
@@ -97,6 +115,17 @@ case "$1" in
   destroy)
     destroy
   ;;
+  rebuild)
+    destroy
+    bootstrap
+  ;;
+  upgrade)
+    destroy
+    bootstrap
+  ;;
+  *)
+    echo "Invalid command"
+    usage
 esac
 
   
