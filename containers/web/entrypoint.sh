@@ -143,9 +143,6 @@ then
   # Ensure there's a crontab for backups
 fi
 
-MAINTENANCE_KEY=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16)
-mysql -D cms -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h mysql -e "UPDATE \`setting\` SET \`value\`='$MAINTENANCE_KEY' WHERE \`setting\`='MAINTENANCE_KEY' LIMIT 1"
-
 # Configure SSMTP to send emails if required
 /bin/sed -i "s/mailhub=.*$/mailhub=$XIBO_SMTP_SERVER/" /etc/ssmtp/ssmtp.conf
 /bin/sed -i "s/AuthUser=.*$/AuthUser=$XIBO_SMTP_USERNAME/" /etc/ssmtp/ssmtp.conf
