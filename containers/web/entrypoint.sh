@@ -116,6 +116,12 @@ then
     
     # Configure Maintenance
     echo "Setting up Maintenance"
+    mysql -D cms -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h mysql -e "UPDATE \`setting\` SET \`value\`='Protected' WHERE \`setting\`='MAINTENANCE_ENABLED' LIMIT 1"
+    MAINTENANCE_KEY=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16)
+    mysql -D cms -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h mysql -e "UPDATE \`setting\` SET \`value\`='$MAINTENANCE_KEY' WHERE \`setting\`='MAINTENANCE_KEY' LIMIT 1"
+
+    mkdir -p /var/www/backup/cron
+    echo "*/5 * * * *   root  /usr/bin/wget -O /dev/null -o /dev/null http://localhost/maint/?key=$MAINTENANCE_KEY" > /var/www/backup/cron/xibo
     
     # Configure MySQL Backup
     echo "Configuring Backups"
@@ -123,13 +129,22 @@ then
     # Remove the installer
     echo "Removing the installer"
     rm /var/www/xibo/web/install/index.php
-  
   fi
+  
+  # Remove the flag so we don't try and bootstrap in future
   rm /CMS-FLAG
 
   # Ensure there's a group for ssmtp
   /usr/sbin/groupadd ssmtp
+  
+  # Ensure there's a crontab for maintenance
+  cp /var/www/backup/cron/xibo /etc/cron.d/xibo
+  
+  # Ensure there's a crontab for backups
 fi
+
+MAINTENANCE_KEY=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16)
+mysql -D cms -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h mysql -e "UPDATE \`setting\` SET \`value\`='$MAINTENANCE_KEY' WHERE \`setting\`='MAINTENANCE_KEY' LIMIT 1"
 
 # Configure SSMTP to send emails if required
 /bin/sed -i "s/mailhub=.*$/mailhub=$XIBO_SMTP_SERVER/" /etc/ssmtp/ssmtp.conf
@@ -146,6 +161,9 @@ fi
 /bin/chgrp ssmtp /usr/sbin/ssmtp
 /bin/chmod 640 /etc/ssmtp/ssmtp.conf
 /bin/chmod g+s /usr/sbin/ssmtp
+
+echo "Starting cron"
+/usr/sbin/cron
 
 echo "Starting webserver"
 /usr/local/bin/httpd-foreground
