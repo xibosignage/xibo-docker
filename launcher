@@ -10,6 +10,33 @@ DATA_DIR=$(pwd)
 CMS_VERSION=latest
 XMR_VERSION=latest
 
+## SMTP Server Configuration
+## The CMS needs to be able to send email to you
+## Please enter credentials for a suitable SMTP server
+## Defaults will work for GMail - replacing your GMail username
+## and password as appropriate. You will also need to enable access
+## for less secure applications on your GMail account for this to
+## work. See https://support.google.com/accounts/answer/6010255
+
+## SMTP Server Hostname
+XIBO_SMTP_SERVER=smtp.gmail.com:587
+## SMTP Username
+XIBO_SMTP_USERNAME=youraccount@gmail.com
+## SMTP Password
+XIBO_SMTP_PASSWORD=yourpassword
+## Use a TLS Connection YES/NO
+XIBO_SMTP_USE_TLS=YES
+## Use a STARTTLS Connection YES/NO
+XIBO_SMTP_USE_STARTTLS=YES
+## Rewrite domain (the domain your email will appear to come from)
+XIBO_SMTP_REWRITE_DOMAIN=gmail.com
+## Hostname that we should identify ourself to the remote server as
+XIBO_SMTP_HOSTNAME=$XIBO_SMTP_REWRITE_DOMAIN
+## Can the From line be overridden in the outbound email
+## NB GMail will rewrite the From address anyway so it's not important
+## for GMail - YES/NO
+XIBO_SMTP_FROM_LINE_OVERRIDE=YES
+
 ## What root password would you like to use for
 ## your MySQL server
 ## To generate a random password, use this default
@@ -39,7 +66,7 @@ function bootstrap {
   
   docker run --name $INSTANCE_NAME-cms-db -v $DATA_DIR/shared/db:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD -d mysql:5.6
   docker run --name $INSTANCE_NAME-cms-xmr -p $XMR_PLAYER_PORT:9505 -d xibosignage/xibo-xmr:$XMR_VERSION
-  docker run --name $INSTANCE_NAME-cms-web -p $WEBSERVER_PORT:80 -e XMR_HOST=$INSTANCE_NAME-cms-xmr -d -v $DATA_DIR/shared/web:/var/www/xibo -v $DATA_DIR/shared/backup:/var/www/backup --link $INSTANCE_NAME-cms-db:mysql --link $INSTANCE_NAME-cms-xmr:50001 xibosignage/xibo-cms:$CMS_VERSION
+  docker run --name $INSTANCE_NAME-cms-web -p $WEBSERVER_PORT:80 -e XMR_HOST=$INSTANCE_NAME-cms-xmr -e XIBO_SMTP_SERVER=$XIBO_SMTP_SERVER -e XIBO_SMTP_USERNAME=$XIBO_SMTP_USERNAME -e XIBO_SMTP_PASSWORD=$XIBO_SMTP_PASSWORD -e XIBO_SMTP_USE_TLS=$XIBO_SMTP_USE_TLS -e XIBO_SMTP_USE_STARTTLS=$XIBO_SMTP_USE_STARTTLS -e XIBO_SMTP_REWRITE_DOMAIN=$XIBO_SMTP_REWRITE_DOMAIN -e XIBO_SMTP_HOSTNAME=$XIBO_SMTP_HOSTNAME -e XIBO_SMTP_FROM_LINE_OVERRIDE=$XIBO_SMTP_FROM_LINE_OVERRIDE -d -v $DATA_DIR/shared/web:/var/www/xibo -v $DATA_DIR/shared/backup:/var/www/backup --link $INSTANCE_NAME-cms-db:mysql --link $INSTANCE_NAME-cms-xmr:50001 xibosignage/xibo-cms:$CMS_VERSION
   
   echo "CMS is starting. It may take a few moments to be fully running"
 }

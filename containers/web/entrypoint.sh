@@ -126,7 +126,26 @@ then
   
   fi
   rm /CMS-FLAG
+
+  # Ensure there's a group for ssmtp
+  /usr/sbin/groupadd ssmtp
 fi
+
+# Configure SSMTP to send emails if required
+/bin/sed -i "s/mailhub=.*$/mailhub=$XIBO_SMTP_SERVER/" /etc/ssmtp/ssmtp.conf
+/bin/sed -i "s/AuthUser=.*$/AuthUser=$XIBO_SMTP_USERNAME/" /etc/ssmtp/ssmtp.conf
+/bin/sed -i "s/AuthPass=.*$/AuthPass=$XIBO_SMTP_PASSWORD/" /etc/ssmtp/ssmtp.conf
+/bin/sed -i "s/UseTLS=.*$/UseTLS=$XIBO_SMTP_USE_TLS/" /etc/ssmtp/ssmtp.conf
+/bin/sed -i "s/UseSTARTTLS=.*$/UseSTARTTLS=$XIBO_SMTP_USE_STARTTLS/" /etc/ssmtp/ssmtp.conf
+/bin/sed -i "s/rewriteDomain=.*$/rewriteDomain=$XIBO_SMTP_REWRITE_DOMAIN/" /etc/ssmtp/ssmtp.conf
+/bin/sed -i "s/hostname=.*$/hostname=$XIBO_SMTP_HOSTNAME/" /etc/ssmtp/ssmtp.conf
+/bin/sed -i "s/FromLineOverride=.*$/FromLineOverride=$XIBO_SMTP_FROM_LINE_OVERRIDE/" /etc/ssmtp/ssmtp.conf
+
+# Secure SSMTP files
+/bin/chgrp ssmtp /etc/ssmtp/ssmtp.conf
+/bin/chgrp ssmtp /usr/sbin/ssmtp
+/bin/chmod 640 /etc/ssmtp/ssmtp.conf
+/bin/chmod g+s /usr/sbin/ssmtp
 
 echo "Starting webserver"
 /usr/local/bin/httpd-foreground
