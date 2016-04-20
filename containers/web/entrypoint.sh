@@ -122,6 +122,7 @@ then
 
     mkdir -p /var/www/backup/cron
     echo "*/5 * * * *   root  /usr/bin/wget -O /dev/null -o /dev/null http://localhost/maint/?key=$MAINTENANCE_KEY" > /var/www/backup/cron/xibo
+    echo "0 1 * * *     root  /bin/mkdir -p /var/www/backup/sql && /usr/bin/mysqldump -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h mysql cms | gzip > /var/www/backup/sql/latest.sql.gz" > /var/www/backup/cron/sql
     
     # Configure MySQL Backup
     echo "Configuring Backups"
@@ -141,6 +142,8 @@ then
   cp /var/www/backup/cron/xibo /etc/cron.d/xibo
   
   # Ensure there's a crontab for backups
+  cp /var/www/backup/cron/sql /etc/cron.d/sql
+  /bin/chmod 600 /etc/cron.d/sql
 fi
 
 # Configure SSMTP to send emails if required
@@ -154,6 +157,8 @@ fi
 /bin/sed -i "s/FromLineOverride=.*$/FromLineOverride=$XIBO_SMTP_FROM_LINE_OVERRIDE/" /etc/ssmtp/ssmtp.conf
 
 # Secure SSMTP files
+# Following recommendations here:
+# https://wiki.archlinux.org/index.php/SSMTP#Security
 /bin/chgrp ssmtp /etc/ssmtp/ssmtp.conf
 /bin/chgrp ssmtp /usr/sbin/ssmtp
 /bin/chmod 640 /etc/ssmtp/ssmtp.conf
