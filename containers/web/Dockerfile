@@ -19,7 +19,9 @@ RUN apt-get update && apt-get install -y \
   php5-curl \
   curl \
   php5-mcrypt \
-  php5-zmq
+  php5-zmq \
+  ssmtp \
+  wget
 
 # Enable apache mods and PHP extensions
 RUN a2enmod php5 && a2enmod rewrite && php5enmod mcrypt
@@ -32,6 +34,7 @@ RUN sed -i "s/max_execution_time = .*$/max_execution_time = 300/" /etc/php5/apac
 
 # Setup persistent environment variables
 ENV XIBO_VERSION=1.8.0-alpha3 XMR_HOST=xibo-cms-xmr
+ENV XIBO_SMTP_SERVER=smtp.gmail.com:587 XIBO_SMTP_USERNAME=none XIBO_SMTP_PASSWORD=none XIBO_SMTP_USE_TLS=YES XIBO_SMTP_USE_STARTTLS=YES XIBO_SMTP_REWRITE_DOMAIN=gmail.com XIBO_SMTP_HOSTNAME=none XIBO_SMTP_FROM_LINE_OVERRIDE=YES
 
 # Expose port 80
 EXPOSE 80
@@ -40,6 +43,7 @@ EXPOSE 80
 ADD https://github.com/xibosignage/xibo-cms/releases/download/${XIBO_VERSION}/xibo-cms-${XIBO_VERSION}.tar.gz /var/www/xibo-cms.tar.gz
 ADD https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh  /usr/local/bin/wait-for-it.sh
 ADD settings.php-template /tmp/settings.php-template
+ADD ssmtp.conf /etc/ssmtp/ssmtp.conf
 
 # Map a volumes to this folder.
 # Our CMS files, library, cache and backups will be in here.

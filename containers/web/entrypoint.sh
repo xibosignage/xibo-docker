@@ -47,9 +47,16 @@ then
     chmod 400 /var/www/backup/.mysql-root-password
   fi
   
+  # Drop the CMS cache (if it exists)
+  if [ -d /var/www/xibo/cache ]
+  then
+    rm -r /var/www/xibo/cache
+  fi
+  
   tar --strip=1 -zxf /var/www/xibo-cms.tar.gz -C /var/www/xibo --exclude=settings.php
   chown www-data.www-data -R /var/www/xibo/web
   chown www-data.www-data -R /var/www/xibo/install
+
   mkdir /var/www/xibo/cache
   mkdir /var/www/xibo/library
   chown www-data.www-data -R /var/www/xibo/cache /var/www/xibo/library
@@ -73,6 +80,7 @@ then
     echo "MySQL started"
     sleep 1
     
+    echo "Provisioning Database"
     # Create database
     MYSQL_USER_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16)
     mysql -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h mysql -e "CREATE DATABASE cms"
@@ -83,14 +91,16 @@ then
     mysql -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h mysql -e "GRANT ALL PRIVILEGES ON cms.* TO 'cms_user'@'%' IDENTIFIED BY '$MYSQL_USER_PASSWORD'; FLUSH PRIVILEGES;"
     echo $MYSQL_USER_PASSWORD > /var/www/backup/.mysql-user-password
     chmod 400 /var/www/backup/.mysql-user-password    
-        
+    
     # Write settings.php
+    echo "Writing settings.php"
     SECRET_KEY=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 8)
     CMS_KEY=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 8)
     cp /tmp/settings.php-template /var/www/xibo/web/settings.php
     sed -i "s/\$dbpass = .*$/\$dbpass = '$MYSQL_USER_PASSWORD';/" /var/www/xibo/web/settings.php
     sed -i "s/define('SECRET_KEY','');/define('SECRET_KEY','$SECRET_KEY');/" /var/www/xibo/web/settings.php
 
+    echo "Configuring Database Settings"
     # Set LIBRARY_LOCATION
     mysql -D cms -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h mysql -e "UPDATE \`setting\` SET \`value\`='/var/www/xibo/library/', \`userChange\`=0, \`userSee\`=0 WHERE \`setting\`='LIBRARY_LOCATION' LIMIT 1"
 
@@ -99,13 +109,63 @@ then
 
     # Set XMR public/private address
     mysql -D cms -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h mysql -e "UPDATE \`setting\` SET \`value\`='tcp://$XMR_HOST:50001', \`userChange\`=0, \`userSee\`=0 WHERE \`setting\`='XMR_ADDRESS' LIMIT 1"
-    mysql -D cms -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h mysql -e "UPDATE \`setting\` SET \`value\`='tcp://youserver:9505' WHERE \`setting\`='XMR_PUB_ADDRESS' LIMIT 1"
+    mysql -D cms -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h mysql -e "UPDATE \`setting\` SET \`value\`='tcp://yourserver:9505' WHERE \`setting\`='XMR_PUB_ADDRESS' LIMIT 1"
+
+    # Set CMS Key
     mysql -D cms -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h mysql -e "UPDATE \`setting\` SET \`value\`='$CMS_KEY' WHERE \`setting\`='SERVER_KEY' LIMIT 1"
     
+    # Configure Maintenance
+    echo "Setting up Maintenance"
+    mysql -D cms -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h mysql -e "UPDATE \`setting\` SET \`value\`='Protected' WHERE \`setting\`='MAINTENANCE_ENABLED' LIMIT 1"
+    MAINTENANCE_KEY=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16)
+    mysql -D cms -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h mysql -e "UPDATE \`setting\` SET \`value\`='$MAINTENANCE_KEY' WHERE \`setting\`='MAINTENANCE_KEY' LIMIT 1"
+
+    mkdir -p /var/www/backup/cron
+    echo "*/5 * * * *   root  /usr/bin/wget -O /dev/null -o /dev/null http://localhost/maint/?key=$MAINTENANCE_KEY" > /var/www/backup/cron/xibo
+    
     # Configure MySQL Backup
-  
+    echo "Configuring Backups"
+    echo "0 1 * * *     root  /bin/mkdir -p /var/www/backup/sql && /usr/bin/mysqldump -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h mysql cms | gzip > /var/www/backup/sql/latest.sql.gz" > /var/www/backup/cron/sql
+    
+    # Remove the installer
+    echo "Removing the installer"
+    rm /var/www/xibo/web/install/index.php
   fi
+  
+  # Remove the flag so we don't try and bootstrap in future
   rm /CMS-FLAG
+
+  # Ensure there's a group for ssmtp
+  /usr/sbin/groupadd ssmtp
+  
+  # Ensure there's a crontab for maintenance
+  cp /var/www/backup/cron/xibo /etc/cron.d/xibo
+  
+  # Ensure there's a crontab for backups
+  cp /var/www/backup/cron/sql /etc/cron.d/sql
+  /bin/chmod 600 /etc/cron.d/sql
 fi
 
+# Configure SSMTP to send emails if required
+/bin/sed -i "s/mailhub=.*$/mailhub=$XIBO_SMTP_SERVER/" /etc/ssmtp/ssmtp.conf
+/bin/sed -i "s/AuthUser=.*$/AuthUser=$XIBO_SMTP_USERNAME/" /etc/ssmtp/ssmtp.conf
+/bin/sed -i "s/AuthPass=.*$/AuthPass=$XIBO_SMTP_PASSWORD/" /etc/ssmtp/ssmtp.conf
+/bin/sed -i "s/UseTLS=.*$/UseTLS=$XIBO_SMTP_USE_TLS/" /etc/ssmtp/ssmtp.conf
+/bin/sed -i "s/UseSTARTTLS=.*$/UseSTARTTLS=$XIBO_SMTP_USE_STARTTLS/" /etc/ssmtp/ssmtp.conf
+/bin/sed -i "s/rewriteDomain=.*$/rewriteDomain=$XIBO_SMTP_REWRITE_DOMAIN/" /etc/ssmtp/ssmtp.conf
+/bin/sed -i "s/hostname=.*$/hostname=$XIBO_SMTP_HOSTNAME/" /etc/ssmtp/ssmtp.conf
+/bin/sed -i "s/FromLineOverride=.*$/FromLineOverride=$XIBO_SMTP_FROM_LINE_OVERRIDE/" /etc/ssmtp/ssmtp.conf
+
+# Secure SSMTP files
+# Following recommendations here:
+# https://wiki.archlinux.org/index.php/SSMTP#Security
+/bin/chgrp ssmtp /etc/ssmtp/ssmtp.conf
+/bin/chgrp ssmtp /usr/sbin/ssmtp
+/bin/chmod 640 /etc/ssmtp/ssmtp.conf
+/bin/chmod g+s /usr/sbin/ssmtp
+
+echo "Starting cron"
+/usr/sbin/cron
+
+echo "Starting webserver"
 /usr/local/bin/httpd-foreground
