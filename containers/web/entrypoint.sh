@@ -122,10 +122,10 @@ then
 
     mkdir -p /var/www/backup/cron
     echo "*/5 * * * *   root  /usr/bin/wget -O /dev/null -o /dev/null http://localhost/maint/?key=$MAINTENANCE_KEY" > /var/www/backup/cron/xibo
-    echo "0 1 * * *     root  /bin/mkdir -p /var/www/backup/sql && /usr/bin/mysqldump -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h mysql cms | gzip > /var/www/backup/sql/latest.sql.gz" > /var/www/backup/cron/sql
     
     # Configure MySQL Backup
     echo "Configuring Backups"
+    echo "0 1 * * *     root  /bin/mkdir -p /var/www/backup/sql && /usr/bin/mysqldump -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h mysql cms | gzip > /var/www/backup/sql/latest.sql.gz" > /var/www/backup/cron/sql
     
     # Remove the installer
     echo "Removing the installer"
