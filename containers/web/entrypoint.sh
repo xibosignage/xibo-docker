@@ -125,7 +125,7 @@ then
     
     # Configure MySQL Backup
     echo "Configuring Backups"
-    echo "0 1 * * *     root  /bin/mkdir -p /var/www/backup/sql && /usr/bin/mysqldump -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h mysql cms | gzip > /var/www/backup/sql/latest.sql.gz" > /var/www/backup/cron/sql
+    echo "0 1 * * *     root  /bin/mkdir -p /var/www/backup/db && /usr/bin/mysqldump -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h mysql cms | gzip > /var/www/backup/db/latest.sql.gz" > /var/www/backup/cron/sql
     
     # Remove the installer
     echo "Removing the installer"
