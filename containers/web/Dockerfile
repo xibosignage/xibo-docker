@@ -14,8 +14,6 @@ RUN apt-get update && apt-get install -y \
   mysql-client \
   php5-mysql \
   php5-gd \
-  php-pear \
-  php-apc \
   php5-curl \
   curl \
   php5-mcrypt \
@@ -34,6 +32,10 @@ RUN sed -i "s/upload_max_filesize = .*$/upload_max_filesize = 800M/" /etc/php5/a
 RUN sed -i "s/max_execution_time = .*$/max_execution_time = 300/" /etc/php5/apache2/php.ini
 RUN sed -i "s/session.gc_probability = .*$/session.gc_probability = 1/" /etc/php5/apache2/php.ini
 RUN sed -i "s/session.gc_divisor = .*$/session.gc_divisor = 100/" /etc/php5/apache2/php.ini
+
+# Disable cron sending emails to root
+RUN awk '/PATH=/ { print; print "MAILTO=\"\""; next}1' /etc/crontab > /tmp/crontab && mv /tmp/crontab /etc/crontab
+RUN awk '/LOGNAME=root/ { print; print "MAILTO=\"\""; next}1' /etc/anacrontab > /tmp/anacrontab && mv /tmp/anacrontab /etc/anacrontab
 
 # Setup persistent environment variables
 ENV XIBO_VERSION=1.8.0-alpha3 XMR_HOST=xibo-cms-xmr
