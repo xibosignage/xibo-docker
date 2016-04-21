@@ -121,14 +121,14 @@ then
     mysql -D cms -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h mysql -e "UPDATE \`setting\` SET \`value\`='$MAINTENANCE_KEY' WHERE \`setting\`='MAINTENANCE_KEY' LIMIT 1"
 
     mkdir -p /var/www/backup/cron
-    echo "*/5 * * * *   root  /usr/bin/wget -O /dev/null -o /dev/null http://localhost/maint/?key=$MAINTENANCE_KEY" > /var/www/backup/cron/xibo
+    echo "*/5 * * * *   root  /usr/bin/wget -O /dev/null -o /dev/null http://localhost/maint/?key=$MAINTENANCE_KEY" > /var/www/backup/cron/cms-maintenance
     
     # Configure MySQL Backup
     echo "Configuring Backups"
-    echo "#!/bin/bash" > /var/www/backup/cron/sql
-    echo "" >> /var/www/backup/cron/sql
-    echo "/bin/mkdir -p /var/www/backup/db" >> /var/www/backup/cron/sql
-    echo "/usr/bin/mysqldump -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h mysql cms | gzip > /var/www/backup/db/latest.sql.gz" >> /var/www/backup/cron/sql
+    echo "#!/bin/bash" > /var/www/backup/cron/cms-db-backup
+    echo "" >> /var/www/backup/cron/cms-db-backup
+    echo "/bin/mkdir -p /var/www/backup/db" >> /var/www/backup/cron/cms-db-backup
+    echo "/usr/bin/mysqldump -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h mysql cms | gzip > /var/www/backup/db/latest.sql.gz" >> /var/www/backup/cron/cms-db-backup
     
     # Remove the installer
     echo "Removing the installer"
@@ -142,13 +142,13 @@ then
   /usr/sbin/groupadd ssmtp
   
   # Ensure there's a crontab for maintenance
-  cp /var/www/backup/cron/xibo /etc/cron.d/xibo
+  cp /var/www/backup/cron/cms-maintenance /etc/cron.d/cms-maintenance
   
   # Ensure there's a crontab for backups
   # Use anacron for this so we get backups even if
   # the box isn't on 24/7
-  cp /var/www/backup/cron/sql /etc/cron.daily/sql
-  /bin/chmod 700 /etc/cron.daily/sql
+  cp /var/www/backup/cron/cms-db-backup /etc/cron.daily/cms-db-backup
+  /bin/chmod 700 /etc/cron.daily/cms-db-backup
 fi
 
 # Configure SSMTP to send emails if required
