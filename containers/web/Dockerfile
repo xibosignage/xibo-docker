@@ -21,7 +21,8 @@ RUN apt-get update && apt-get install -y \
   php5-mcrypt \
   php5-zmq \
   ssmtp \
-  wget
+  wget \
+  anacron
 
 # Enable apache mods and PHP extensions
 RUN a2enmod php5 && a2enmod rewrite && php5enmod mcrypt

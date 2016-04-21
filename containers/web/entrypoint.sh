@@ -125,7 +125,10 @@ then
     
     # Configure MySQL Backup
     echo "Configuring Backups"
-    echo "0 1 * * *     root  /bin/mkdir -p /var/www/backup/db && /usr/bin/mysqldump -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h mysql cms | gzip > /var/www/backup/db/latest.sql.gz" > /var/www/backup/cron/sql
+    echo "#!/bin/bash" > /var/www/backup/cron/sql
+    echo "" >> /var/www/backup/cron/sql
+    echo "/bin/mkdir -p /var/www/backup/db" >> /var/www/backup/cron/sql
+    echo "/usr/bin/mysqldump -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h mysql cms | gzip > /var/www/backup/db/latest.sql.gz" >> /var/www/backup/cron/sql
     
     # Remove the installer
     echo "Removing the installer"
@@ -142,8 +145,10 @@ then
   cp /var/www/backup/cron/xibo /etc/cron.d/xibo
   
   # Ensure there's a crontab for backups
-  cp /var/www/backup/cron/sql /etc/cron.d/sql
-  /bin/chmod 600 /etc/cron.d/sql
+  # Use anacron for this so we get backups even if
+  # the box isn't on 24/7
+  cp /var/www/backup/cron/sql /etc/cron.daily/sql
+  /bin/chmod 700 /etc/cron.daily/sql
 fi
 
 # Configure SSMTP to send emails if required
@@ -166,6 +171,7 @@ fi
 
 echo "Starting cron"
 /usr/sbin/cron
+/usr/sbin/anacron
 
 echo "Starting webserver"
 /usr/local/bin/httpd-foreground
