@@ -52,8 +52,13 @@ then
   then
     rm -r /var/www/xibo/cache
   fi
+
+  # If we're not in CI mode (for Jenkins) then extract the CMS source
+  if [ "$XIBO_DEV_MODE" != "ci" ]
+  then  
+    tar --strip=1 -zxf /var/www/xibo-cms.tar.gz -C /var/www/xibo --exclude=settings.php
+  fi
   
-  tar --strip=1 -zxf /var/www/xibo-cms.tar.gz -C /var/www/xibo --exclude=settings.php
   chown www-data.www-data -R /var/www/xibo/web
   chown www-data.www-data -R /var/www/xibo/install
 
@@ -168,6 +173,19 @@ fi
 /bin/chgrp ssmtp /usr/sbin/ssmtp
 /bin/chmod 640 /etc/ssmtp/ssmtp.conf
 /bin/chmod g+s /usr/sbin/ssmtp
+
+# If we're in CI mode, then install composer and phpunit too
+if [ "$XIBO_DEV_MODE" != "ci" ]
+then
+  php -r "readfile('https://getcomposer.org/installer');" > composer-setup.php
+  php composer-setup.php
+  php -r "unlink('composer-setup.php');"
+  mv composer.phar /usr/local/bin/composer
+  
+  wget https://phar.phpunit.de/phpunit.phar
+  chmod +x phpunit.phar
+  mv phpunit.phar /usr/local/bin/phpunit
+fi
 
 echo "Starting cron"
 /usr/sbin/cron
