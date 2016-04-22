@@ -175,7 +175,7 @@ fi
 /bin/chmod g+s /usr/sbin/ssmtp
 
 # If we're in CI mode, then install composer and phpunit too
-if [ "$XIBO_DEV_MODE" != "ci" ]
+if [ "$XIBO_DEV_MODE" == "ci" ]
 then
   php -r "readfile('https://getcomposer.org/installer');" > composer-setup.php
   php composer-setup.php
