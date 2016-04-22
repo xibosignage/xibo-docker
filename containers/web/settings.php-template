@@ -20,6 +20,7 @@ $dbuser = 'cms_user';
 $dbpass = '';
 $dbname = 'cms';
 
+if (!defined('SECRET_KEY'))
 define('SECRET_KEY','');
 
 ?>
