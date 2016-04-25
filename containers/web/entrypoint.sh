@@ -63,7 +63,7 @@ then
   chown www-data.www-data -R /var/www/xibo/install
 
   mkdir /var/www/xibo/cache
-  mkdir /var/www/xibo/library
+  mkdir -p /var/www/xibo/library/temp
   chown www-data.www-data -R /var/www/xibo/cache /var/www/xibo/library
   
   if [ ! -e "/var/www/xibo/web/settings.php" ]
