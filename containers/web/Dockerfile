@@ -39,7 +39,7 @@ ENV XIBO_SMTP_SERVER=smtp.gmail.com:587 XIBO_SMTP_USERNAME=none XIBO_SMTP_PASSWO
 EXPOSE 80
 
 # Pull in the release archive for the environment
-ADD https://github.com/xibosignage/xibo-cms/releases/download/${XIBO_VERSION}/xibo-cms-${XIBO_VERSION}.tar.gz /var/www/xibo-cms.tar.gz
+ADD https://github.com/xibosignage/xibo-cms/archive/${XIBO_VERSION}.tar.gz /var/www/xibo-cms.tar.gz
 ADD https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh  /usr/local/bin/wait-for-it.sh
 ADD settings.php-template /tmp/settings.php-template
 ADD ssmtp.conf /etc/ssmtp/ssmtp.conf
