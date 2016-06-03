@@ -19,9 +19,6 @@ RUN apt-get update && apt-get install -y \
   wget \
   anacron
 
-# Enable apache mods and PHP extensions
-RUN a2enmod php5 && a2enmod rewrite && php5enmod mcrypt
-
 # Update the PHP.ini file
 RUN sed -i "s/error_reporting = .*$/error_reporting = E_ERROR | E_WARNING | E_PARSE/" /etc/php5/apache2/php.ini
 RUN sed -i "s/post_max_size = .*$/post_max_size = 810M/" /etc/php5/apache2/php.ini
