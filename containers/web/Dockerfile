@@ -1,10 +1,13 @@
-FROM ubuntu:12.04
+FROM ubuntu:14.04
 MAINTAINER Dan Garner <dan@springsignage.com>
 
 RUN apt-get update && apt-get install -y \
   software-properties-common
 
-# Install apache, PHP, and supplementary programs.
+RUN DEBIAN_FRONTEND=noninteractive add-apt-repository ppa:chris-lea/zeromq
+RUN DEBIAN_FRONTEND=noninteractive add-apt-repository ppa:alexharrington/php-zmq
+
+# Install apache, PHP, and supplimentary programs.
 RUN apt-get update && apt-get install -y \
   apache2 \
   libapache2-mod-php5 \
@@ -15,6 +18,7 @@ RUN apt-get update && apt-get install -y \
   php5-cli \
   curl \
   php5-mcrypt \
+  php5-zmq \
   ssmtp \
   wget \
   anacron
@@ -35,7 +39,7 @@ RUN awk '/PATH=/ { print; print "MAILTO=\"\""; next}1' /etc/crontab > /tmp/cront
 RUN awk '/LOGNAME=root/ { print; print "MAILTO=\"\""; next}1' /etc/anacrontab > /tmp/anacrontab && mv /tmp/anacrontab /etc/anacrontab
 
 # Setup persistent environment variables
-ENV XIBO_VERSION=1.7.7
+ENV XIBO_VERSION=1.8.0-alpha3 XMR_HOST=xibo-cms-xmr
 ENV XIBO_SMTP_SERVER=smtp.gmail.com:587 XIBO_SMTP_USERNAME=none XIBO_SMTP_PASSWORD=none XIBO_SMTP_USE_TLS=YES XIBO_SMTP_USE_STARTTLS=YES XIBO_SMTP_REWRITE_DOMAIN=gmail.com XIBO_SMTP_HOSTNAME=none XIBO_SMTP_FROM_LINE_OVERRIDE=YES
 
 # Expose port 80
