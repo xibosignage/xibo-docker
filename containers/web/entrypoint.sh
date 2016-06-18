@@ -24,9 +24,9 @@ then
   if [ -e "/var/www/xibo/web/settings.php" ]
   then
     # Run a database backup
-    dbuser=$(awk -F "'" '/\$dbuser/ {print $2}' /tmp/settings.php)
-    dbpass=$(awk -F "'" '/\$dbpass/ {print $2}' /tmp/settings.php)
-    dbname=$(awk -F "'" '/\$dbpass/ {print $2}' /tmp/settings.php)
+    dbuser=$(awk -F "'" '/\$dbuser/ {print $2}' /var/www/xibo/web/settings.php)
+    dbpass=$(awk -F "'" '/\$dbpass/ {print $2}' /var/www/xibo/web/settings.php)
+    dbname=$(awk -F "'" '/\$dbpass/ {print $2}' /var/www/xibo/web/settings.php)
     
     mysqldump -h mysql -u $dbuser -p$dbpass $dbname | gzip > /var/www/backup/$(date +"%Y-%m-%d_%H-%M-%S").sql.gz
 
@@ -34,8 +34,8 @@ then
     mv /var/www/xibo/web/settings.php /tmp/settings.php
     
     # Delete the old install EXCEPT the library directory
-    find /var/www/xibo ! -name library -type d -exec rm -rf {};
-    find /var/www/xibo -type f --max-depth=1 -exec rm -f {};
+    find /var/www/xibo ! -name library -type d -exec rm -rf {}\;
+    find /var/www/xibo -type f --max-depth=1 -exec rm -f {}\;
 
     # Replace settings
     mv /tmp/settings.php /var/www/xibo/web/settings.php
