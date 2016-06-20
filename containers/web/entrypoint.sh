@@ -30,21 +30,28 @@ then
     
     mysqldump -h mysql -u $dbuser -p$dbpass $dbname | gzip > /var/www/backup/$(date +"%Y-%m-%d_%H-%M-%S").sql.gz
 
+    # Make a temporary place to store the user's CMS data
+    mkdir -p /var/www/backup/upgrade/theme
+    
+    cp -rp /var/www/xibo/custom /var/www/backup/upgrade
+    find /var/www/xibo/web/theme -maxdepth 1 -type d ! -name default ! -name compact ! -name theme -exec cp -rp {} /var/www/backup/theme \;
+
     # Backup the settings.php file
-    mv /var/www/xibo/web/settings.php /tmp/settings.php
+    mv /var/www/xibo/web/settings.php /var/www/backup/upgrade/settings.php
     
     # Delete the old install EXCEPT the library directory
-    find /var/www/xibo ! -name library -type d -exec rm -rf {}\;
-    find /var/www/xibo -type f -max-depth=1 -exec rm -f {}\;
+    find /var/www/xibo -maxdepth 1 -type d ! -name library -exec rm -rf {}\;
+    find /var/www/xibo -type f -maxdepth 1 -exec rm -f {}\;
 
     # Replace settings
-    mv /tmp/settings.php /var/www/xibo/web/settings.php
-  else
-    # When the mysql container is re-bootstrapped, it's password
-    # remains the same so cache a copy in this file so we know what
-    # it is if we ever need it in the future.
-    echo $MYSQL_ENV_MYSQL_ROOT_PASSWORD > /var/www/backup/.mysql-root-password
-    chmod 400 /var/www/backup/.mysql-root-password
+    mv /var/www/backup/upgrade/settings.php /var/www/xibo/web/settings.php
+    
+    # Replace custom
+    mv /var/www/backup/upgrade/custom /var/www/xibo
+    
+    # Replace theme
+    mkdir -p /var/www/xibo/web
+    mv /var/www/backup/upgrade/theme /var/www/xibo/web
   fi
   
   # Drop the CMS cache (if it exists)
@@ -141,14 +148,11 @@ then
     echo "" >> /var/www/backup/cron/cms-db-backup
     echo "/bin/mkdir -p /var/www/backup/db" >> /var/www/backup/cron/cms-db-backup
     echo "/usr/bin/mysqldump -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h mysql cms | gzip > /var/www/backup/db/latest.sql.gz" >> /var/www/backup/cron/cms-db-backup
-    
-    # Remove the installer
-    echo "Removing the installer"
-    rm /var/www/xibo/web/install/index.php
   fi
   
   # Remove the flag so we don't try and bootstrap in future
   rm /CMS-FLAG
+  rm /var/www/xibo/web/install/index.php
 
   # Ensure there's a group for ssmtp
   /usr/sbin/groupadd ssmtp
