@@ -41,7 +41,7 @@ then
     
     # Delete the old install EXCEPT the library directory
     find /var/www/xibo -maxdepth 1 -type d ! -name library -exec rm -rf {}\;
-    find /var/www/xibo -type f -maxdepth 1 -exec rm -f {}\;
+    find /var/www/xibo -maxdepth 1 -type f -exec rm -f {}\;
 
     # Replace settings
     mv /var/www/backup/upgrade/settings.php /var/www/xibo/web/settings.php
