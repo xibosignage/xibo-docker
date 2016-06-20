@@ -64,12 +64,11 @@ function bootstrap {
   ### Bootstrap
   echo "Bootstrapping CMS Docker Containers"
   
-  if [ ! -f "$DATA_DIR/shared/db/ibdata_1" ]
+  MYSQL_FTR=0
+  
+  if [ ! -f "$DATA_DIR/shared/db/ibdata1" ]
   then
-      echo "Your MySQL root password is: $MYSQL_ROOT_PASSWORD"
-      echo "This will not be shown to you again"
-      echo "Please ensure you make a note of it and keep it for later use should you require it"
-      echo ""
+      MYSQL_FTR=1
   fi
   
   docker pull xibosignage/xibo-cms:$CMS_VERSION
@@ -80,17 +79,25 @@ function bootstrap {
   docker run --name $INSTANCE_NAME-cms-web -p $WEBSERVER_PORT:80 -e XMR_HOST=$INSTANCE_NAME-cms-xmr -e XIBO_SMTP_SERVER=$XIBO_SMTP_SERVER -e XIBO_SMTP_USERNAME=$XIBO_SMTP_USERNAME -e XIBO_SMTP_PASSWORD=$XIBO_SMTP_PASSWORD -e XIBO_SMTP_USE_TLS=$XIBO_SMTP_USE_TLS -e XIBO_SMTP_USE_STARTTLS=$XIBO_SMTP_USE_STARTTLS -e XIBO_SMTP_REWRITE_DOMAIN=$XIBO_SMTP_REWRITE_DOMAIN -e XIBO_SMTP_HOSTNAME=$XIBO_SMTP_HOSTNAME -e XIBO_SMTP_FROM_LINE_OVERRIDE=$XIBO_SMTP_FROM_LINE_OVERRIDE -d -v $DATA_DIR/shared/web:/var/www/xibo -v $DATA_DIR/shared/backup:/var/www/backup --link $INSTANCE_NAME-cms-db:mysql --link $INSTANCE_NAME-cms-xmr:50001 xibosignage/xibo-cms:$CMS_VERSION
   
   echo "CMS is starting. It may take a few moments to be fully running"
+  if [ "$MYSQL_FTR" -eq 1 ]
+  then
+      echo ""
+      echo "Your MySQL root password is: $MYSQL_ROOT_PASSWORD"
+      echo ""
+      echo "This will not be shown to you again"
+      echo "Please ensure you make a note of it and keep it for later use should you need it"
+  fi
 }
 
 function bootstrap-dev {
   ### Bootstrap
   echo "Bootstrapping CMS Docker Containers in dev mode"
-  if [ ! -f "$DATA_DIR/shared/db/ibdata_1" ]
+  
+  MYSQL_FTR=0
+  
+  if [ ! -f "$DATA_DIR/shared/db/ibdata1" ]
   then
-      echo "Your MySQL root password is: $MYSQL_ROOT_PASSWORD"
-      echo "This will not be shown to you again"
-      echo "Please ensure you make a note of it and keep it for later use should you need it"
-      echo ""
+      MYSQL_FTR=1
   fi
                               
   docker pull xibosignage/xibo-cms:$CMS_VERSION
@@ -101,6 +108,14 @@ function bootstrap-dev {
   docker run --name $INSTANCE_NAME-cms-web -p $WEBSERVER_PORT:80 -e XIBO_DEV_MODE=true -e XMR_HOST=$INSTANCE_NAME-cms-xmr -d -v $DATA_DIR/shared/web:/var/www/xibo -v $DATA_DIR/shared/backup:/var/www/backup --link $INSTANCE_NAME-cms-db:mysql --link $INSTANCE_NAME-cms-xmr:50001 xibosignage/xibo-cms:$CMS_VERSION
   
   echo "CMS is starting. It may take a few moments to be fully running"
+  if [ "$MYSQL_FTR" -eq 1 ]
+  then
+      echo ""
+      echo "Your MySQL root password is: $MYSQL_ROOT_PASSWORD"
+      echo ""
+      echo "This will not be shown to you again"
+      echo "Please ensure you make a note of it and keep it for later use should you need it"
+  fi
 }
 
 function start {
