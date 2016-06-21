@@ -54,6 +54,7 @@ then
 fi
 
 if [ "$DB_EXISTS" == "0" ]
+then
   # This is a fresh install so bootstrap the whole
   # system
   echo "New install"
@@ -62,9 +63,9 @@ if [ "$DB_EXISTS" == "0" ]
 
   echo "Provisioning Database"
   # Populate the database
-  mysql -D $MYSQL_DATABASE_NAME -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "SOURCE /var/www/cms/install/master/structure.sql"
-  mysql -D $MYSQL_DATABASE_NAME -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "SOURCE /var/www/cms/install/master/data.sql"
-  mysql -D $MYSQL_DATABASE_NAME -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "SOURCE /var/www/cms/install/master/constraints.sql"
+  mysql -D $CMS_DATABASE_NAME -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "SOURCE /var/www/cms/install/master/structure.sql"
+  mysql -D $CMS_DATABASE_NAME -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "SOURCE /var/www/cms/install/master/data.sql"
+  mysql -D $CMS_DATABASE_NAME -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "SOURCE /var/www/cms/install/master/constraints.sql"
 
   mysql -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "GRANT ALL PRIVILEGES ON cms.* TO '$CMS_DATABASE_USERNAME'@'%' IDENTIFIED BY '$CMS_DATABASE_PASSWORD'; FLUSH PRIVILEGES;"
 
