@@ -22,6 +22,15 @@ fi
 echo "Waiting for MySQL to start - max 300 seconds"
 /usr/local/bin/wait-for-it.sh -q -t 300 $CMS_DATABASE_HOST:$CMS_DATABASE_PORT
 
+if [ ! "$?" == 0 ]
+then
+  echo "MySQL didn't start in the allocated time" > /var/www/backup/LOG
+fi
+
+# Safety sleep to give MySQL a moment to settle after coming up
+echo "MySQL started"
+sleep 1
+
 DB_EXISTS=0
 # Check if the database exists already
 if mysql -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "use $CMS_DATABASE_NAME"
@@ -32,7 +41,7 @@ fi
 
 # Check if we need to run an upgrade
 # if DB_EXISTS then see if the version installed matches
-if [ "$DB_EXISTS" == "1"]
+if [ "$DB_EXISTS" == "1" ]
 then
   # Get the currently installed schema version number
   CURRENT_DB_VERSION=$(mysql -D $CMS_DATABASE_NAME -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -se 'SELECT DBVersion from version')
@@ -44,21 +53,14 @@ then
   fi
 fi
 
-if [ "$DB_EXISTS" == "0"]
+if [ "$DB_EXISTS" == "0" ]
   # This is a fresh install so bootstrap the whole
   # system
   echo "New install"
 
   mysql -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "CREATE DATABASE $CMS_DATABASE_NAME"
 
-  if [ ! "$?" == 0 ]
-  then
-    echo "MySQL didn't start in the allocated time" > /var/www/backup/LOG
-  fi
 
-  # Safety sleep to give MySQL a moment to settle after coming up
-  echo "MySQL started"
-  sleep 1
 
   echo "Provisioning Database"
   # Populate the database
