@@ -47,7 +47,7 @@ ENV CMS_SERVER=smtp.gmail.com:587 CMS_SMTP_USERNAME=none CMS_SMTP_PASSWORD=none 
 EXPOSE 80
 
 # Pull in the release archive for the environment
-RUN curl -o cms.tar.gz -SL https://github.com/xibosignage/xibo-cms/releases/download/${CMS_VERSION}/xibo-cms-${CMS_VERSION}.tar.gz \
+RUN mkdir -p /var/www/cms && curl -o cms.tar.gz -SL https://github.com/xibosignage/xibo-cms/releases/download/${CMS_VERSION}/xibo-cms-${CMS_VERSION}.tar.gz \
 	&& tar --strip=1 -xzf cms.tar.gz -C /var/www/cms \
 	&& rm cms.tar.gz
 ADD https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh  /usr/local/bin/wait-for-it.sh
@@ -61,9 +61,9 @@ RUN mkdir -p /var/www/cms/library/temp && mkdir -p /var/www/backup && mkdir -p /
 
 VOLUME /var/www/cms/library
 VOLUME /var/www/cms/custom
-VOLUME /var/www/cms/web/custom
+VOLUME /var/www/cms/web/theme/custom
 VOLUME /var/www/backup
-VOLUME /var/www/cms/userscripts
+VOLUME /var/www/cms/web/userscripts
 
 # Update the default apache site with the config we created.
 COPY apache-config.conf /etc/apache2/sites-enabled/000-default.conf
