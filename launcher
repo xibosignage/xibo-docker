@@ -5,18 +5,6 @@
 CMS_VERSION=latest
 XMR_VERSION=latest
 
-if [ ! -e launcher.config ]
-then
-  genconfig
-  echo "**********************"
-  echo "Please review the generated configuration in launcher.config, make any adjustments, and then rerun ./launcher bootstrap"
-  echo "**********************"
-  exit 0
-else
-  echo "Reading configuration"
-  source launcher.config
-fi
-
 ############
 #####
 ##### Library Functions
@@ -49,7 +37,7 @@ CMS_SMTP_USE_STARTTLS=YES
 ## Rewrite domain (the domain your email will appear to come from)
 CMS_SMTP_REWRITE_DOMAIN=gmail.com
 ## Hostname that we should identify ourself to the remote server as
-CMS_SMTP_HOSTNAME=$CMS_SMTP_REWRITE_DOMAIN
+CMS_SMTP_HOSTNAME=gmail.com
 ## Can the From line be overridden in the outbound email
 ## NB GMail will rewrite the From address anyway so it's not important
 ## for GMail - YES/NO
@@ -177,6 +165,18 @@ function usage {
   echo "                   CMS"
   exit
 }
+
+if [ ! -e launcher.config ]
+then
+  genconfig
+  echo "**********************"
+  echo "Please review the generated configuration in launcher.config, make any adjustments, and then rerun ./launcher bootstrap"
+  echo "**********************"
+  exit 0
+else
+  echo "Reading configuration"
+  source launcher.config
+fi
 
 if [ $# -lt 1 ]
 then
