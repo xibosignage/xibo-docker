@@ -136,7 +136,7 @@ then
   then
      # We won't have a settings.php in place, so we'll need to copy one in
      cp /tmp/settings.php-template /var/www/cms/web/settings.php
-     chown www-data.www-data /var/www/cms/web/settings.php
+     chown www-data.www-data -R /var/www/cms
   fi
 
   sed -i "s/define('SECRET_KEY','');/define('SECRET_KEY','$SECRET_KEY');/" /var/www/cms/web/settings.php
