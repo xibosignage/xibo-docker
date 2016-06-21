@@ -1,4 +1,4 @@
 shared/
 launcher-local
-launcher.config
+launcher.env
 launcher-test

@@ -57,13 +57,13 @@ INSTANCE_NAME="xibo"
 ## your MySQL server root user accounts
 ## Random defaults have been generated for you
 EOF
-  echo "$config" > launcher.config
+  echo "$config" > launcher.env
 
   MYSQL_ROOT_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16)
   CMS_DATABASE_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16)
 
-  echo "MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD" >> launcher.config
-  echo "CMS_DATABASE_PASSWORD=$CMS_DATABASE_PASSWORD" >> launcher.config
+  echo "MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD" >> launcher.env
+  echo "CMS_DATABASE_PASSWORD=$CMS_DATABASE_PASSWORD" >> launcher.env
 }
 
 
@@ -166,7 +166,7 @@ function usage {
   exit
 }
 
-if [ ! -e launcher.config ]
+if [ ! -e launcher.env ]
 then
   genconfig
   echo "**********************"
@@ -175,7 +175,7 @@ then
   exit 0
 else
   echo "Reading configuration"
-  source launcher.config
+  source launcher.env
 fi
 
 if [ $# -lt 1 ]
