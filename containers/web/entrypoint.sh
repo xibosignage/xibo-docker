@@ -60,11 +60,8 @@ if [ "$DB_EXISTS" == "0" ]
 
   mysql -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "CREATE DATABASE $CMS_DATABASE_NAME"
 
-
-
   echo "Provisioning Database"
   # Populate the database
-  MYSQL_USER_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16)
   mysql -D $MYSQL_DATABASE_NAME -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "SOURCE /var/www/cms/install/master/structure.sql"
   mysql -D $MYSQL_DATABASE_NAME -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "SOURCE /var/www/cms/install/master/data.sql"
   mysql -D $MYSQL_DATABASE_NAME -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "SOURCE /var/www/cms/install/master/constraints.sql"
@@ -72,7 +69,6 @@ if [ "$DB_EXISTS" == "0" ]
   mysql -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "GRANT ALL PRIVILEGES ON cms.* TO '$CMS_DATABASE_USERNAME'@'%' IDENTIFIED BY '$CMS_DATABASE_PASSWORD'; FLUSH PRIVILEGES;"
 
   CMS_KEY=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 8)
-
 
   echo "Configuring Database Settings"
   # Set LIBRARY_LOCATION
