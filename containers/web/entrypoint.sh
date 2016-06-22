@@ -50,6 +50,9 @@ then
   then
     # We're going to run an upgrade. Make a database backup
     mysqldump -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -u $CMS_DATABASE_USERNAME -p$CMS_DATABASE_PASSWORD $CMS_DATABASE_NAME | gzip > /var/www/backup/db-$(date +"%Y-%m-%d_%H-%M-%S").sql.gz
+
+    # Drop app cache on upgrade
+    rm -rf /var/www/cms/cache/*
   fi
 fi
 
@@ -107,10 +110,6 @@ if [ -e /CMS-FLAG ]
 then
   # Remove the CMS-FLAG so we don't run this block time we're started
   rm /CMS-FLAG
-  rm /var/www/cms/web/install/index.php
-
-  # Ensure there's a group for ssmtp
-  /usr/sbin/groupadd ssmtp
 
   # Ensure there's a crontab for maintenance
   cp /var/www/backup/cron/cms-maintenance /etc/cron.d/cms-maintenance
@@ -155,6 +154,9 @@ fi
 /bin/chgrp ssmtp /usr/sbin/ssmtp
 /bin/chmod 640 /etc/ssmtp/ssmtp.conf
 /bin/chmod g+s /usr/sbin/ssmtp
+
+mkdir -p /var/www/cms/library/temp
+chown www-data.www-data -R /var/www/cms
 
 echo "Starting cron"
 /usr/sbin/cron

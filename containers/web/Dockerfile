@@ -24,7 +24,7 @@ RUN apt-get update && apt-get install -y \
   anacron
 
 # Enable apache mods and PHP extensions
-RUN a2enmod php5 && a2enmod rewrite && php5enmod mcrypt
+RUN a2enmod php5 && a2enmod rewrite && a2enmod env && php5enmod mcrypt
 
 # Update the PHP.ini file
 RUN sed -i "s/error_reporting = .*$/error_reporting = E_ERROR | E_WARNING | E_PARSE/" /etc/php5/apache2/php.ini
@@ -49,7 +49,7 @@ EXPOSE 80
 # Pull in the release archive for the environment
 RUN mkdir -p /var/www/cms && curl -o cms.tar.gz -SL https://github.com/xibosignage/xibo-cms/releases/download/${CMS_VERSION}/xibo-cms-${CMS_VERSION}.tar.gz \
 	&& tar --strip=1 -xzf cms.tar.gz -C /var/www/cms \
-	&& rm cms.tar.gz
+	&& rm cms.tar.gz && rm /var/www/cms/web/install/index.php
 ADD https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh  /usr/local/bin/wait-for-it.sh
 ADD settings.php-template /var/www/cms/web/settings.php
 ADD settings.php-template /tmp/settings.php-template
@@ -76,5 +76,8 @@ RUN chmod +x /entrypoint.sh /usr/local/bin/httpd-foreground /usr/local/bin/wait-
 # Create a flag file which the bootstrapping process will delete
 # This tells us if it's the first run of a new container
 RUN touch /CMS-FLAG
+
+# Add a group for SSMTP
+RUN /usr/sbin/groupadd ssmtp
 
 CMD ["/entrypoint.sh"]
