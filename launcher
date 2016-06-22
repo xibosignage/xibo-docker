@@ -2,13 +2,19 @@
 
 # Pull in any arguments and set defaults
 
-## Where should we store your user data
-# DATA_DIR=/opt/xibo
-DATA_DIR=$(pwd)
-
-## What version do you want to run
 CMS_VERSION=latest
 XMR_VERSION=latest
+
+############
+#####
+##### Library Functions
+#####
+############
+function genconfig {
+  echo "Writing blank configuration file"
+  read -d '' config <<-EOF
+## Where should we store your user data
+DATA_DIR=$(pwd)
 
 ## SMTP Server Configuration
 ## The CMS needs to be able to send email to you
@@ -19,30 +25,23 @@ XMR_VERSION=latest
 ## work. See https://support.google.com/accounts/answer/6010255
 
 ## SMTP Server Hostname
-XIBO_SMTP_SERVER=smtp.gmail.com:587
+CMS_SMTP_SERVER=smtp.gmail.com:587
 ## SMTP Username
-XIBO_SMTP_USERNAME=youraccount@gmail.com
+CMS_SMTP_USERNAME=youraccount@gmail.com
 ## SMTP Password
-XIBO_SMTP_PASSWORD=yourpassword
+CMS_SMTP_PASSWORD=yourpassword
 ## Use a TLS Connection YES/NO
-XIBO_SMTP_USE_TLS=YES
+CMS_SMTP_USE_TLS=YES
 ## Use a STARTTLS Connection YES/NO
-XIBO_SMTP_USE_STARTTLS=YES
+CMS_SMTP_USE_STARTTLS=YES
 ## Rewrite domain (the domain your email will appear to come from)
-XIBO_SMTP_REWRITE_DOMAIN=gmail.com
+CMS_SMTP_REWRITE_DOMAIN=gmail.com
 ## Hostname that we should identify ourself to the remote server as
-XIBO_SMTP_HOSTNAME=$XIBO_SMTP_REWRITE_DOMAIN
+CMS_SMTP_HOSTNAME=gmail.com
 ## Can the From line be overridden in the outbound email
 ## NB GMail will rewrite the From address anyway so it's not important
 ## for GMail - YES/NO
-XIBO_SMTP_FROM_LINE_OVERRIDE=YES
-
-## What root password would you like to use for
-## your MySQL server
-## To generate a random password, use this default
-MYSQL_ROOT_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16)
-## Alternatively uncomment the following line to set your preferred choice
-#MYSQL_ROOT_PASSWORD="root"
+CMS_SMTP_FROM_LINE_OVERRIDE=YES
 
 ## Which port should XMR listen on for Players?
 XMR_PLAYER_PORT=9505
@@ -54,68 +53,54 @@ WEBSERVER_PORT=8080
 # application
 INSTANCE_NAME="xibo"
 
-############
-#####
-##### Library Functions
-#####
-############
+## What root passwords would you like to use for
+## your MySQL server root user accounts
+## Random defaults have been generated for you
+EOF
+  echo "$config" > launcher.env
+
+  MYSQL_ROOT_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16)
+  CMS_DATABASE_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16)
+
+  echo "MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD" >> launcher.env
+  echo "CMS_DATABASE_PASSWORD=$CMS_DATABASE_PASSWORD" >> launcher.env
+}
+
 
 function bootstrap {
   ### Bootstrap
   echo "Bootstrapping CMS Docker Containers"
-  
-  MYSQL_FTR=0
-  
-  if [ ! -f "$DATA_DIR/shared/db/ibdata1" ]
-  then
-      MYSQL_FTR=1
-  fi
-  
+
   docker pull xibosignage/xibo-cms:$CMS_VERSION
   docker pull xibosignage/xibo-xmr:$XMR_VERSION
   docker pull mysql:5.6
   docker run --name $INSTANCE_NAME-cms-db -v $DATA_DIR/shared/db:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD -d mysql:5.6
   docker run --name $INSTANCE_NAME-cms-xmr -p $XMR_PLAYER_PORT:9505 -d xibosignage/xibo-xmr:$XMR_VERSION
-  docker run --name $INSTANCE_NAME-cms-web -p $WEBSERVER_PORT:80 -e XMR_HOST=$INSTANCE_NAME-cms-xmr -e XIBO_SMTP_SERVER=$XIBO_SMTP_SERVER -e XIBO_SMTP_USERNAME=$XIBO_SMTP_USERNAME -e XIBO_SMTP_PASSWORD=$XIBO_SMTP_PASSWORD -e XIBO_SMTP_USE_TLS=$XIBO_SMTP_USE_TLS -e XIBO_SMTP_USE_STARTTLS=$XIBO_SMTP_USE_STARTTLS -e XIBO_SMTP_REWRITE_DOMAIN=$XIBO_SMTP_REWRITE_DOMAIN -e XIBO_SMTP_HOSTNAME=$XIBO_SMTP_HOSTNAME -e XIBO_SMTP_FROM_LINE_OVERRIDE=$XIBO_SMTP_FROM_LINE_OVERRIDE -d -v $DATA_DIR/shared/web:/var/www/xibo -v $DATA_DIR/shared/backup:/var/www/backup --link $INSTANCE_NAME-cms-db:mysql --link $INSTANCE_NAME-cms-xmr:50001 xibosignage/xibo-cms:$CMS_VERSION
-  
+  docker run --name $INSTANCE_NAME-cms-web -p $WEBSERVER_PORT:80 -e XMR_HOST=$INSTANCE_NAME-cms-xmr -e CMS_SMTP_SERVER=$CMS_SMTP_SERVER -e CMS_SMTP_USERNAME=$CMS_SMTP_USERNAME \
+             -e CMS_SMTP_PASSWORD=$CMS_SMTP_PASSWORD -e CMS_SMTP_USE_TLS=$CMS_SMTP_USE_TLS -e CMS_SMTP_USE_STARTTLS=$CMS_SMTP_USE_STARTTLS \
+             -e CMS_SMTP_REWRITE_DOMAIN=$CMS_SMTP_REWRITE_DOMAIN -e CMS_SMTP_HOSTNAME=$CMS_SMTP_HOSTNAME -e CMS_SMTP_FROM_LINE_OVERRIDE=$CMS_SMTP_FROM_LINE_OVERRIDE \
+             -e CMS_DATABASE_PASSWORD=$CMS_DATABASE_PASSWORD \
+             -d -v $DATA_DIR/shared/cms/custom:/var/www/cms/custom -v $DATA_DIR/shared/backup:/var/www/backup -v $DATA_DIR/shared/cms/web/theme/custom:/var/www/cms/web/theme/custom \
+             -v $DATA_DIR/shared/cms/library:/var/www/cms/library -v $DATA_DIR/shared/cms/web/userscripts:/var/www/cms/web/userscripts \
+             --link $INSTANCE_NAME-cms-db:mysql --link $INSTANCE_NAME-cms-xmr:50001 xibosignage/xibo-cms:$CMS_VERSION
+
   echo "CMS is starting. It may take a few moments to be fully running"
-  if [ "$MYSQL_FTR" -eq 1 ]
-  then
-      echo ""
-      echo "Your MySQL root password is: $MYSQL_ROOT_PASSWORD"
-      echo ""
-      echo "This will not be shown to you again"
-      echo "Please ensure you make a note of it and keep it for later use should you need it"
-  fi
 }
 
 function bootstrap-dev {
   ### Bootstrap
   echo "Bootstrapping CMS Docker Containers in dev mode"
-  
-  MYSQL_FTR=0
-  
-  if [ ! -f "$DATA_DIR/shared/db/ibdata1" ]
-  then
-      MYSQL_FTR=1
-  fi
-                              
+
+
   docker pull xibosignage/xibo-cms:$CMS_VERSION
   docker pull xibosignage/xibo-xmr:$XMR_VERSION
   docker pull mysql:5.6
   docker run --name $INSTANCE_NAME-cms-db -v $DATA_DIR/shared/db:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD -d mysql:5.6
   docker run --name $INSTANCE_NAME-cms-xmr -p $XMR_PLAYER_PORT:9505 -d xibosignage/xibo-xmr:$XMR_VERSION
-  docker run --name $INSTANCE_NAME-cms-web -p $WEBSERVER_PORT:80 -e XIBO_DEV_MODE=true -e XMR_HOST=$INSTANCE_NAME-cms-xmr -d -v $DATA_DIR/shared/web:/var/www/xibo -v $DATA_DIR/shared/backup:/var/www/backup --link $INSTANCE_NAME-cms-db:mysql --link $INSTANCE_NAME-cms-xmr:50001 xibosignage/xibo-cms:$CMS_VERSION
-  
+  docker run --name $INSTANCE_NAME-cms-web -p $WEBSERVER_PORT:80 -e XIBO_DEV_MODE=true -e XMR_HOST=$INSTANCE_NAME-cms-xmr -d -v $DATA_DIR/shared/web:/var/www/cms \
+             -v $DATA_DIR/shared/backup:/var/www/backup --link $INSTANCE_NAME-cms-db:mysql --link $INSTANCE_NAME-cms-xmr:50001 xibosignage/xibo-cms:$CMS_VERSION
+
   echo "CMS is starting. It may take a few moments to be fully running"
-  if [ "$MYSQL_FTR" -eq 1 ]
-  then
-      echo ""
-      echo "Your MySQL root password is: $MYSQL_ROOT_PASSWORD"
-      echo ""
-      echo "This will not be shown to you again"
-      echo "Please ensure you make a note of it and keep it for later use should you need it"
-  fi
 }
 
 function start {
@@ -173,13 +158,25 @@ function usage {
   echo "  stop             Stop your existing environment"
   echo "  destroy          Destroy your existing environment."
   echo "                   User data persists."
-  echo "  force-destroy    Kill and destroy your existing environment." 
+  echo "  force-destroy    Kill and destroy your existing environment."
   echo "  rebuild          Destroy then bootstrap persisting user data"
   echo "  upgrade          See rebuild"
   echo "  bootstrap-dev    Bootstrap environment but don't install the"
   echo "                   CMS"
   exit
 }
+
+if [ ! -e launcher.env ]
+then
+  genconfig
+  echo "**********************"
+  echo "Please review the generated configuration in launcher.config, make any adjustments, and then rerun ./launcher bootstrap"
+  echo "**********************"
+  exit 0
+else
+  echo "Reading configuration"
+  source launcher.env
+fi
 
 if [ $# -lt 1 ]
 then
@@ -218,5 +215,3 @@ case "$1" in
     echo "Invalid command"
     usage
 esac
-
-  

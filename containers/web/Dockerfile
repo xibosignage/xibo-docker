@@ -24,7 +24,7 @@ RUN apt-get update && apt-get install -y \
   anacron
 
 # Enable apache mods and PHP extensions
-RUN a2enmod php5 && a2enmod rewrite && php5enmod mcrypt
+RUN a2enmod php5 && a2enmod rewrite && a2enmod env && php5enmod mcrypt
 
 # Update the PHP.ini file
 RUN sed -i "s/error_reporting = .*$/error_reporting = E_ERROR | E_WARNING | E_PARSE/" /etc/php5/apache2/php.ini
@@ -39,23 +39,31 @@ RUN awk '/PATH=/ { print; print "MAILTO=\"\""; next}1' /etc/crontab > /tmp/cront
 RUN awk '/LOGNAME=root/ { print; print "MAILTO=\"\""; next}1' /etc/anacrontab > /tmp/anacrontab && mv /tmp/anacrontab /etc/anacrontab
 
 # Setup persistent environment variables
-ENV XIBO_VERSION=1.8.0-alpha3 XMR_HOST=xibo-cms-xmr
-ENV XIBO_SMTP_SERVER=smtp.gmail.com:587 XIBO_SMTP_USERNAME=none XIBO_SMTP_PASSWORD=none XIBO_SMTP_USE_TLS=YES XIBO_SMTP_USE_STARTTLS=YES XIBO_SMTP_REWRITE_DOMAIN=gmail.com XIBO_SMTP_HOSTNAME=none XIBO_SMTP_FROM_LINE_OVERRIDE=YES
+ENV CMS_VERSION=1.8.0-alpha3 XMR_HOST=xmr CMS_DB_VERSION=123
+ENV CMS_DATABASE_HOST=mysql CMS_DATABASE_USERNAME=cms CMS_DATABASE_PASSWORD=none CMS_DATABASE_PORT=3306 CMS_DATABASE_NAME=cms
+ENV CMS_SERVER=smtp.gmail.com:587 CMS_SMTP_USERNAME=none CMS_SMTP_PASSWORD=none CMS_SMTP_USE_TLS=YES CMS_SMTP_USE_STARTTLS=YES CMS_SMTP_REWRITE_DOMAIN=gmail.com CMS_SMTP_HOSTNAME=none CMS_SMTP_FROM_LINE_OVERRIDE=YES
 
 # Expose port 80
 EXPOSE 80
 
 # Pull in the release archive for the environment
-ADD https://github.com/xibosignage/xibo-cms/releases/download/${XIBO_VERSION}/xibo-cms-${XIBO_VERSION}.tar.gz /var/www/xibo-cms.tar.gz
+RUN mkdir -p /var/www/cms && curl -o cms.tar.gz -SL https://github.com/xibosignage/xibo-cms/releases/download/${CMS_VERSION}/xibo-cms-${CMS_VERSION}.tar.gz \
+	&& tar --strip=1 -xzf cms.tar.gz -C /var/www/cms \
+	&& rm cms.tar.gz && rm /var/www/cms/web/install/index.php
 ADD https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh  /usr/local/bin/wait-for-it.sh
+ADD settings.php-template /var/www/cms/web/settings.php
 ADD settings.php-template /tmp/settings.php-template
 ADD ssmtp.conf /etc/ssmtp/ssmtp.conf
 
 # Map a volumes to this folder.
 # Our CMS files, library, cache and backups will be in here.
-RUN mkdir -p /var/www/xibo && mkdir -p /var/www/backup
-VOLUME /var/www/xibo
+RUN mkdir -p /var/www/cms/library/temp && mkdir -p /var/www/backup && mkdir -p /var/www/cms/cache && mkdir -p /var/www/cms/web/userscripts && chown -R www-data:www-data /var/www/cms
+
+VOLUME /var/www/cms/library
+VOLUME /var/www/cms/custom
+VOLUME /var/www/cms/web/theme/custom
 VOLUME /var/www/backup
+VOLUME /var/www/cms/web/userscripts
 
 # Update the default apache site with the config we created.
 COPY apache-config.conf /etc/apache2/sites-enabled/000-default.conf
@@ -66,7 +74,10 @@ COPY httpd-foreground /usr/local/bin/httpd-foreground
 RUN chmod +x /entrypoint.sh /usr/local/bin/httpd-foreground /usr/local/bin/wait-for-it.sh
 
 # Create a flag file which the bootstrapping process will delete
-# This tells us if we're doing a new install/upgrade on run
+# This tells us if it's the first run of a new container
 RUN touch /CMS-FLAG
+
+# Add a group for SSMTP
+RUN /usr/sbin/groupadd ssmtp
 
 CMD ["/entrypoint.sh"]
