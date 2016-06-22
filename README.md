@@ -92,7 +92,7 @@ the CMS will be run using your existing data.
 ## Upgrading Xibo
 
 Before attempting an upgrade, it's strongly recommended to take a full backup of
-your Xibo system. So `stop` your CMS by issueing the command
+your Xibo system. So `stop` your CMS by issuing the command
 
 ```
 ./launcher stop
