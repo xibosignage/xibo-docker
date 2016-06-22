@@ -32,9 +32,6 @@ The first time you run `launcher`, a new file `launcher.env` will be created in
 the same directory as the `launcher` program. Edit this with a text editor to
 provide the configuration needed to get your Xibo CMS installed.
 
-If you don't want Xibo to be able to send email messages, then you can ommit to
-configure those options.
-
 `DATA_DIR` will default to the current directory you're in. If you want to store
 your Xibo data somewhere else, then change `DATA_DIR` to point to that place.
 
@@ -45,6 +42,10 @@ port number, then you need to change the value of the `WEBSERVER_PORT` option.
 Similarly, Xibo's XMR server will be started listening on port 9505. If you
 would prefer to use an alternative port number, then you'll need to do so by
 changing the `XMR_PLAYER_PORT` option.
+
+There are lots of options concerned with setting up the Xibo CMS to send email.
+If you don't want Xibo to be able to send email messages, then you can ommit to
+configure those options and leave them at their default settings.
 
 Once you've made your changes to `launcher.env` and have saved the file, run
 
