@@ -47,7 +47,7 @@ CMS_SMTP_FROM_LINE_OVERRIDE=YES
 XMR_PLAYER_PORT=9505
 
 ## Which port should the Xibo CMS Webserver listen on?
-WEBSERVER_PORT=8080
+WEBSERVER_PORT=80
 
 # Name prefix for the containers used in this
 # application
