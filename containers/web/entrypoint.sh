@@ -21,7 +21,7 @@ fi
 # Detect if we're going to run an upgrade
 if [ -e "/CMS-FLAG" ]
 then
-  if [ -e "/var/www/xibo/web/settings.php" ]
+  if [ -e "/var/www/xibo/settings.php" ]
   then
     # Run a database backup
     dbuser=$(awk -F "'" '/\$dbuser/ {print $2}' /tmp/settings.php)
@@ -31,14 +31,14 @@ then
     mysqldump -h mysql -u $dbuser -p$dbpass $dbname | gzip > /var/www/backup/$(date +"%Y-%m-%d_%H-%M-%S").sql.gz
 
     # Backup the settings.php file
-    mv /var/www/xibo/web/settings.php /tmp/settings.php
+    mv /var/www/xibo/settings.php /tmp/settings.php
     
     # Delete the old install EXCEPT the library directory
     find /var/www/xibo ! -name library -type d -exec rm -rf {};
     find /var/www/xibo -type f --max-depth=1 -exec rm -f {};
 
     # Replace settings
-    mv /tmp/settings.php /var/www/xibo/web/settings.php
+    mv /tmp/settings.php /var/www/xibo/settings.php
   else
     # When the mysql container is re-bootstrapped, it's password
     # remains the same so cache a copy in this file so we know what
@@ -66,7 +66,7 @@ then
   mkdir -p /var/www/xibo/library/temp
   chown www-data.www-data -R /var/www/xibo/cache /var/www/xibo/library
   
-  if [ ! -e "/var/www/xibo/web/settings.php" ]
+  if [ ! -e "/var/www/xibo/settings.php" ]
   then
     # This is a fresh install so bootstrap the whole
     # system
@@ -101,9 +101,9 @@ then
     echo "Writing settings.php"
     SECRET_KEY=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 8)
     CMS_KEY=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 8)
-    cp /tmp/settings.php-template /var/www/xibo/web/settings.php
-    sed -i "s/\$dbpass = .*$/\$dbpass = '$MYSQL_USER_PASSWORD';/" /var/www/xibo/web/settings.php
-    sed -i "s/define('SECRET_KEY','');/define('SECRET_KEY','$SECRET_KEY');/" /var/www/xibo/web/settings.php
+    cp /tmp/settings.php-template /var/www/xibo/settings.php
+    sed -i "s/\$dbpass = .*$/\$dbpass = '$MYSQL_USER_PASSWORD';/" /var/www/xibo/settings.php
+    sed -i "s/define('SECRET_KEY','');/define('SECRET_KEY','$SECRET_KEY');/" /var/www/xibo/settings.php
 
     echo "Configuring Database Settings"
     # Set LIBRARY_LOCATION
@@ -133,7 +133,7 @@ then
     mysql -D cms -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h mysql -e "UPDATE \`setting\` SET \`value\`='$MAINTENANCE_KEY' WHERE \`setting\`='MAINTENANCE_KEY' LIMIT 1"
 
     mkdir -p /var/www/backup/cron
-    echo "*/5 * * * *   root  /usr/bin/wget -O /dev/null -o /dev/null http://localhost/maint/?key=$MAINTENANCE_KEY" > /var/www/backup/cron/cms-maintenance
+    echo "*/5 * * * *   root  /usr/bin/wget -O /dev/null -o /dev/null http://localhost/maintenance.php/?key=$MAINTENANCE_KEY" > /var/www/backup/cron/cms-maintenance
     
     # Configure MySQL Backup
     echo "Configuring Backups"
