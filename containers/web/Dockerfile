@@ -1,4 +1,4 @@
-FROM xibosignage/xibo-xmr-dev:latest
+FROM xibosignage/xibo-cms-dev:latest
 MAINTAINER Dan Garner <dan@springsignage.com>
 
 VOLUME /var/www/cms/library
