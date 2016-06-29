@@ -71,7 +71,6 @@ function bootstrap {
   ### Bootstrap
   echo "Bootstrapping CMS Docker Containers"
 
-  docker pull xibosignage/xibo-cms-dev:$CMS_VERSION
   docker pull xibosignage/xibo-cms:$CMS_VERSION
   docker pull xibosignage/xibo-xmr:$XMR_VERSION
   docker pull mysql:5.6
@@ -92,8 +91,7 @@ function bootstrap-dev {
   ### Bootstrap
   echo "Bootstrapping CMS Docker Containers in dev mode"
 
-
-  docker pull xibosignage/xibo-cms:$CMS_VERSION
+  docker pull xibosignage/xibo-cms-dev:$CMS_VERSION
   docker pull xibosignage/xibo-xmr:$XMR_VERSION
   docker pull mysql:5.6
   docker run --name $INSTANCE_NAME-cms-db -v $DATA_DIR/shared/db:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD -d mysql:5.6
