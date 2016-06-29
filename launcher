@@ -2,8 +2,8 @@
 
 # Pull in any arguments and set defaults
 
-CMS_VERSION=release_1.8.0-alpha3
-XMR_VERSION=release_1.8.0-alpha3
+CMS_VERSION=release_1.8.0-beta
+XMR_VERSION=release_1.8.0-beta
 
 ############
 #####
