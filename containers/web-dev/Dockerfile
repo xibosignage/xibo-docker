@@ -11,6 +11,7 @@ RUN DEBIAN_FRONTEND=noninteractive add-apt-repository ppa:alexharrington/php-zmq
 RUN apt-get update && apt-get install -y \
   apache2 \
   libapache2-mod-php5 \
+  libapache2-mod-xsendfile \
   mysql-client \
   php5-mysql \
   php5-gd \
@@ -24,12 +25,12 @@ RUN apt-get update && apt-get install -y \
   anacron
 
 # Enable apache mods and PHP extensions
-RUN a2enmod php5 && a2enmod rewrite && a2enmod env && php5enmod mcrypt
+RUN a2enmod php5 && a2enmod rewrite && a2enmod env && php5enmod mcrypt && a2enmod xsendfile
 
 # Update the PHP.ini file
 RUN sed -i "s/error_reporting = .*$/error_reporting = E_ERROR | E_WARNING | E_PARSE/" /etc/php5/apache2/php.ini
-RUN sed -i "s/post_max_size = .*$/post_max_size = 810M/" /etc/php5/apache2/php.ini
-RUN sed -i "s/upload_max_filesize = .*$/upload_max_filesize = 800M/" /etc/php5/apache2/php.ini
+RUN sed -i "s/post_max_size = .*$/post_max_size = 1999M/" /etc/php5/apache2/php.ini
+RUN sed -i "s/upload_max_filesize = .*$/upload_max_filesize = 1999M/" /etc/php5/apache2/php.ini
 RUN sed -i "s/max_execution_time = .*$/max_execution_time = 300/" /etc/php5/apache2/php.ini
 RUN sed -i "s/session.gc_probability = .*$/session.gc_probability = 1/" /etc/php5/apache2/php.ini
 RUN sed -i "s/session.gc_divisor = .*$/session.gc_divisor = 100/" /etc/php5/apache2/php.ini
