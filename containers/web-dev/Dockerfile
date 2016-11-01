@@ -55,6 +55,7 @@ ADD https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.s
 ADD settings.php-template /var/www/cms/web/settings.php
 ADD settings.php-template /tmp/settings.php-template
 ADD ssmtp.conf /etc/ssmtp/ssmtp.conf
+ADD settings-custom.php /tmp/settings-custom.php
 
 # Map a volumes to this folder.
 # Our CMS files, library, cache and backups will be in here.

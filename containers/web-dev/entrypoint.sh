@@ -135,7 +135,7 @@ then
      mysql -D $CMS_DATABASE_NAME -u $CMS_DATABASE_USERNAME -p$CMS_DATABASE_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "UPDATE \`setting\` SET \`value\`='On' WHERE \`setting\`='MAINTENANCE_ENABLED' LIMIT 1"
   fi
 
-  sed -i "s/define('SECRET_KEY','');/define('SECRET_KEY','$SECRET_KEY');/" /var/www/cms/web/settings.php
+  /bin/sed -i "s/define('SECRET_KEY','');/define('SECRET_KEY','$SECRET_KEY');/" /var/www/cms/web/settings.php
 fi
 
 # Configure SSMTP to send emails if required
@@ -158,6 +158,11 @@ fi
 
 mkdir -p /var/www/cms/library/temp
 chown www-data.www-data -R /var/www/cms
+
+if [ ! -e /var/www/cms/custom ]
+then
+    /bin/cp /tmp/settings-custom.php /var/www/cms/custom
+fi
 
 echo "Starting cron"
 /usr/sbin/cron
