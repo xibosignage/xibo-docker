@@ -159,7 +159,7 @@ fi
 mkdir -p /var/www/cms/library/temp
 chown www-data.www-data -R /var/www/cms
 
-if [ ! -e /var/www/cms/custom ]
+if [ ! -e /var/www/cms/custom/settings-custom.php ]
 then
     /bin/cp /tmp/settings-custom.php /var/www/cms/custom
 fi

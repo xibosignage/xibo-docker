@@ -24,6 +24,6 @@ if (!defined('SECRET_KEY'))
 define('SECRET_KEY','');
 
 if (file_exists('/var/www/cms/custom/settings-custom.php'))
-    include_once('/var/www/cms/custom/settings-custom.php'));
+    include_once('/var/www/cms/custom/settings-custom.php');
 
 ?>
