@@ -2,6 +2,7 @@ FROM ubuntu:14.04
 MAINTAINER Dan Garner <dan@springsignage.com>
 
 ENV XMR_VERSION 0.1
+ENV DEBUG false
 
 RUN apt-get update && apt-get install -y \
   software-properties-common

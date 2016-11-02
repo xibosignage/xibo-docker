@@ -77,6 +77,7 @@ then
   echo "Configuring Database Settings"
   # Set LIBRARY_LOCATION
   mysql -D $CMS_DATABASE_NAME -u $CMS_DATABASE_USERNAME -p$CMS_DATABASE_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "UPDATE \`setting\` SET \`value\`='/var/www/cms/library/', \`userChange\`=0, \`userSee\`=0 WHERE \`setting\`='LIBRARY_LOCATION' LIMIT 1"
+  mysql -D $CMS_DATABASE_NAME -u $CMS_DATABASE_USERNAME -p$CMS_DATABASE_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "UPDATE \`setting\` SET \`value\`='Apache', \`userChange\`=0, \`userSee\`=0 WHERE \`setting\`='SENDFILE_MODE' LIMIT 1"
 
   # Set admin username/password
   mysql -D $CMS_DATABASE_NAME -u $CMS_DATABASE_USERNAME -p$CMS_DATABASE_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "UPDATE \`user\` SET \`UserName\`='xibo_admin', \`UserPassword\`='5f4dcc3b5aa765d61d8327deb882cf99' WHERE \`UserID\` = 1 LIMIT 1"
@@ -96,7 +97,7 @@ then
   mysql -D $CMS_DATABASE_NAME -u $CMS_DATABASE_USERNAME -p$CMS_DATABASE_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "UPDATE \`setting\` SET \`value\`='$MAINTENANCE_KEY' WHERE \`setting\`='MAINTENANCE_KEY' LIMIT 1"
 
   mkdir -p /var/www/backup/cron
-  echo "*/5 * * * *   root  /usr/bin/wget -O /dev/null -o /dev/null http://localhost/maint/?key=$MAINTENANCE_KEY" > /var/www/backup/cron/cms-maintenance
+  echo "* * * * *   www-data  cd /var/www/cms && /usr/bin/php bin/xtr.php > /dev/null 2>&1 " > /var/www/backup/cron/cms-maintenance
 
   # Configure MySQL Backup
   echo "Configuring Backups"
@@ -134,7 +135,7 @@ then
      mysql -D $CMS_DATABASE_NAME -u $CMS_DATABASE_USERNAME -p$CMS_DATABASE_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "UPDATE \`setting\` SET \`value\`='On' WHERE \`setting\`='MAINTENANCE_ENABLED' LIMIT 1"
   fi
 
-  sed -i "s/define('SECRET_KEY','');/define('SECRET_KEY','$SECRET_KEY');/" /var/www/cms/web/settings.php
+  /bin/sed -i "s/define('SECRET_KEY','');/define('SECRET_KEY','$SECRET_KEY');/" /var/www/cms/web/settings.php
 fi
 
 # Configure SSMTP to send emails if required
@@ -157,6 +158,11 @@ fi
 
 mkdir -p /var/www/cms/library/temp
 chown www-data.www-data -R /var/www/cms
+
+if [ ! -e /var/www/cms/custom ]
+then
+    /bin/cp /tmp/settings-custom.php /var/www/cms/custom
+fi
 
 echo "Starting cron"
 /usr/sbin/cron
