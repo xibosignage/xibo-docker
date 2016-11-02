@@ -164,6 +164,10 @@ then
     /bin/cp /tmp/settings-custom.php /var/www/cms/custom
 fi
 
+echo "Running maintenance"
+cd /var/www/cms
+/usr/bin/php bin/run.php 1
+
 echo "Starting cron"
 /usr/sbin/cron
 /usr/sbin/anacron
