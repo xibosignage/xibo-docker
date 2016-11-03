@@ -56,7 +56,7 @@ then
   fi
 fi
 
-# Update /var/www/.profile with current environment (for cron)
+# Update /var/www/maintenance with current environment (for cron)
 echo "#!/bin/bash" > /var/www/maintenance.sh
 echo "" >> /var/www/maintenance.sh
 /usr/bin/env | sed 's/^\(.*\)$/export \1/g' | grep -E "^export CMS_DATABASE" >> /var/www/maintenance.sh
