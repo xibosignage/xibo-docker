@@ -56,6 +56,13 @@ then
   fi
 fi
 
+# Update /var/www/maintenance with current environment (for cron)
+echo "#!/bin/bash" > /var/www/maintenance.sh
+echo "" >> /var/www/maintenance.sh
+/usr/bin/env | sed 's/^\(.*\)$/export \1/g' | grep -E "^export CMS_DATABASE" >> /var/www/maintenance.sh
+echo "cd /var/www/cms && /usr/bin/php bin/xtr.php" >> /var/www/maintenance.sh
+chmod 755 /var/www/maintenance.sh
+
 if [ "$DB_EXISTS" == "0" ]
 then
   # This is a fresh install so bootstrap the whole
@@ -97,7 +104,7 @@ then
   mysql -D $CMS_DATABASE_NAME -u $CMS_DATABASE_USERNAME -p$CMS_DATABASE_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "UPDATE \`setting\` SET \`value\`='$MAINTENANCE_KEY' WHERE \`setting\`='MAINTENANCE_KEY' LIMIT 1"
 
   mkdir -p /var/www/backup/cron
-  echo "* * * * *   www-data  cd /var/www/cms && /usr/bin/php bin/xtr.php > /dev/null 2>&1 " > /var/www/backup/cron/cms-maintenance
+  echo "* * * * *   www-data  /var/www/maintenance.sh > /dev/null 2>&1 " > /var/www/backup/cron/cms-maintenance
 
   # Configure MySQL Backup
   echo "Configuring Backups"
