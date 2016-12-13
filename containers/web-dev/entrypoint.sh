@@ -33,7 +33,7 @@ sleep 1
 
 DB_EXISTS=0
 # Check if the database exists already
-if mysql -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "use $CMS_DATABASE_NAME"
+if mysql -u $CMS_DATABASE_USERNAME -p$CMS_DATABASE_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "use $CMS_DATABASE_NAME"
 then
   # Database exists.
   DB_EXISTS=1
