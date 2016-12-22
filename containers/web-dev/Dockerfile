@@ -40,7 +40,7 @@ RUN awk '/PATH=/ { print; print "MAILTO=\"\""; next}1' /etc/crontab > /tmp/cront
 RUN awk '/LOGNAME=root/ { print; print "MAILTO=\"\""; next}1' /etc/anacrontab > /tmp/anacrontab && mv /tmp/anacrontab /etc/anacrontab
 
 # Setup persistent environment variables
-ENV CMS_VERSION=1.8.0-rc1 XMR_HOST=xmr CMS_DB_VERSION=128 CMS_SERVER_NAME=localhost
+ENV CMS_VERSION=1.8.0-rc2 XMR_HOST=xmr CMS_DB_VERSION=129 CMS_SERVER_NAME=localhost
 ENV CMS_DATABASE_HOST=mysql CMS_DATABASE_USERNAME=cms CMS_DATABASE_PASSWORD=none CMS_DATABASE_PORT=3306 CMS_DATABASE_NAME=cms
 ENV CMS_SERVER=smtp.gmail.com:587 CMS_SMTP_USERNAME=none CMS_SMTP_PASSWORD=none CMS_SMTP_USE_TLS=YES CMS_SMTP_USE_STARTTLS=YES CMS_SMTP_REWRITE_DOMAIN=gmail.com CMS_SMTP_HOSTNAME=none CMS_SMTP_FROM_LINE_OVERRIDE=YES
 
