@@ -56,13 +56,6 @@ then
   fi
 fi
 
-# Update /var/www/maintenance with current environment (for cron)
-echo "#!/bin/bash" > /var/www/maintenance.sh
-echo "" >> /var/www/maintenance.sh
-/usr/bin/env | sed 's/^\(.*\)$/export \1/g' | grep -E "^export CMS_DATABASE" >> /var/www/maintenance.sh
-echo "cd /var/www/cms && /usr/bin/php bin/xtr.php" >> /var/www/maintenance.sh
-chmod 755 /var/www/maintenance.sh
-
 if [ "$DB_EXISTS" == "0" ]
 then
   # This is a fresh install so bootstrap the whole
@@ -102,31 +95,12 @@ then
 
   MAINTENANCE_KEY=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16)
   mysql -D $CMS_DATABASE_NAME -u $CMS_DATABASE_USERNAME -p$CMS_DATABASE_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "UPDATE \`setting\` SET \`value\`='$MAINTENANCE_KEY' WHERE \`setting\`='MAINTENANCE_KEY' LIMIT 1"
-
-  mkdir -p /var/www/backup/cron
-  echo "* * * * *   www-data  /var/www/maintenance.sh > /dev/null 2>&1 " > /var/www/backup/cron/cms-maintenance
-
-  # Configure MySQL Backup
-  echo "Configuring Backups"
-  echo "#!/bin/bash" > /var/www/backup/cron/cms-db-backup
-  echo "" >> /var/www/backup/cron/cms-db-backup
-  echo "/bin/mkdir -p /var/www/backup/db" >> /var/www/backup/cron/cms-db-backup
-  echo "/usr/bin/mysqldump -u $CMS_DATABASE_USERNAME -p$CMS_DATABASE_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT $CMS_DATABASE_NAME | gzip > /var/www/backup/db/latest.sql.gz" >> /var/www/backup/cron/cms-db-backup
 fi
 
 if [ -e /CMS-FLAG ]
 then
   # Remove the CMS-FLAG so we don't run this block time we're started
   rm /CMS-FLAG
-
-  # Ensure there's a crontab for maintenance
-  cp /var/www/backup/cron/cms-maintenance /etc/cron.d/cms-maintenance
-
-  # Ensure there's a crontab for backups
-  # Use anacron for this so we get backups even if
-  # the box isn't on 24/7
-  cp /var/www/backup/cron/cms-db-backup /etc/cron.daily/cms-db-backup
-  /bin/chmod 700 /etc/cron.daily/cms-db-backup
 
   # Write settings.php
   echo "Updating settings.php"
@@ -144,6 +118,24 @@ then
 
   /bin/sed -i "s/define('SECRET_KEY','');/define('SECRET_KEY','$SECRET_KEY');/" /var/www/cms/web/settings.php
 fi
+
+# Configure MySQL Backup
+echo "Configuring Backups"
+echo "#!/bin/bash" > /etc/cron.daily/cms-db-backup
+echo "" >> /etc/cron.daily/cms-db-backup
+echo "/bin/mkdir -p /var/www/backup/db" >> /etc/cron.daily/cms-db-backup
+echo "/usr/bin/mysqldump --single-transaction -u $CMS_DATABASE_USERNAME -p$CMS_DATABASE_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT $CMS_DATABASE_NAME | gzip > /var/www/backup/db/latest.sql.gz" >> /etc/cron.daily/cms-db-backup
+/bin/chmod 700 /etc/cron.daily/cms-db-backup
+
+# Update /var/www/maintenance with current environment (for cron)
+echo "Configuring Maintenance"
+echo "#!/bin/bash" > /var/www/maintenance.sh
+echo "" >> /var/www/maintenance.sh
+/usr/bin/env | sed 's/^\(.*\)$/export \1/g' | grep -E "^export CMS_DATABASE" >> /var/www/maintenance.sh
+echo "cd /var/www/cms && /usr/bin/php bin/xtr.php" >> /var/www/maintenance.sh
+chmod 755 /var/www/maintenance.sh
+
+echo "* * * * *   www-data  /var/www/maintenance.sh > /dev/null 2>&1 " > /etc/cron.d/cms-maintenance
 
 # Configure SSMTP to send emails if required
 /bin/sed -i "s/mailhub=.*$/mailhub=$CMS_SMTP_SERVER/" /etc/ssmtp/ssmtp.conf
