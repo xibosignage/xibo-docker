@@ -26,6 +26,7 @@ services:
             - "${DATA_DIR}/shared/cms/web/theme/custom:/var/www/cms/web/theme/custom"
             - "${DATA_DIR}/shared/cms/library:/var/www/cms/library"
             - "${DATA_DIR}/shared/cms/web/userscripts:/var/www/cms/web/userscripts"
+        restart: always
         links:
             - cms-db:mysql
             - cms-xmr:50001
