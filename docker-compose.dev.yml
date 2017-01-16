@@ -1,0 +1,13 @@
+version: "2"
+
+services:
+    cms-xmr:
+        environment:
+            - DEBUG: "true"
+    cms-web:
+        image: xibosignage/xibo-cms-dev:release_1.8.0-rc2
+        volumes:
+            - "${DATA_DIR}/shared/web:/var/www/cms"
+        links:
+            - cms-db:mysql
+            - cms-xmr:50001

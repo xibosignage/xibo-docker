@@ -44,7 +44,7 @@ fi
 if [ "$DB_EXISTS" == "1" ]
 then
   # Get the currently installed schema version number
-  CURRENT_DB_VERSION=$(mysql -D $CMS_DATABASE_NAME -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -se 'SELECT DBVersion from version')
+  CURRENT_DB_VERSION=$(mysql -D $CMS_DATABASE_NAME -u $CMS_DATABASE_USERNAME -p$CMS_DATABASE_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -se 'SELECT DBVersion from version')
 
   if [ ! "$CURRENT_DB_VERSION"  == "$CMS_DB_VERSION" ]
   then
@@ -62,15 +62,15 @@ then
   # system
   echo "New install"
 
-  mysql -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "CREATE DATABASE $CMS_DATABASE_NAME"
+  mysql -u root -p$MYSQL_ROOT_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "CREATE DATABASE $CMS_DATABASE_NAME"
 
   echo "Provisioning Database"
   # Populate the database
-  mysql -D $CMS_DATABASE_NAME -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "SOURCE /var/www/cms/install/master/structure.sql"
-  mysql -D $CMS_DATABASE_NAME -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "SOURCE /var/www/cms/install/master/data.sql"
-  mysql -D $CMS_DATABASE_NAME -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "SOURCE /var/www/cms/install/master/constraints.sql"
+  mysql -D $CMS_DATABASE_NAME -u root -p$MYSQL_ROOT_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "SOURCE /var/www/cms/install/master/structure.sql"
+  mysql -D $CMS_DATABASE_NAME -u root -p$MYSQL_ROOT_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "SOURCE /var/www/cms/install/master/data.sql"
+  mysql -D $CMS_DATABASE_NAME -u root -p$MYSQL_ROOT_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "SOURCE /var/www/cms/install/master/constraints.sql"
 
-  mysql -u root -p$MYSQL_ENV_MYSQL_ROOT_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "GRANT ALL PRIVILEGES ON cms.* TO '$CMS_DATABASE_USERNAME'@'%' IDENTIFIED BY '$CMS_DATABASE_PASSWORD'; FLUSH PRIVILEGES;"
+  mysql -u root -p$MYSQL_ROOT_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "GRANT ALL PRIVILEGES ON cms.* TO '$CMS_DATABASE_USERNAME'@'%' IDENTIFIED BY '$CMS_DATABASE_PASSWORD'; FLUSH PRIVILEGES;"
 
   CMS_KEY=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 8)
 
