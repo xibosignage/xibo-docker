@@ -4,8 +4,8 @@ if [ "$XIBO_DEV_MODE" == "true" ]
 then
   # Print MySQL connection details
   echo "MySQL Connection Details:"
-  echo "Username: root"
-  echo "Password: $MYSQL_ENV_MYSQL_ROOT_PASSWORD"
+  echo "Username: cms"
+  echo "Password: $CMS_DATABASE_PASSWORD"
   echo "Host: mysql"
   echo ""
   echo "XMR Connection Details:"
@@ -36,12 +36,7 @@ if [ -f "/var/www/backup/import.sql" ]
 then
   echo "Attempting to import database"
   
-  if [ "$CMS_SKIP_DB_CREATE" == "true" ]
-  then
-    mysql -u root -p$MYSQL_ROOT_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "CREATE DATABASE $CMS_DATABASE_NAME"  # Populate the database
-    mysql -u root -p$MYSQL_ROOT_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "GRANT ALL PRIVILEGES ON `$CMS_DATABASE_NAME`.* TO '$CMS_DATABASE_USERNAME'@'%' IDENTIFIED BY '$CMS_DATABASE_PASSWORD'; FLUSH PRIVILEGES;"
-  fi
-  
+  echo "Importing Database" 
   mysql -D $CMS_DATABASE_NAME -u $CMS_DATABASE_USERNAME -p$CMS_DATABASE_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "SOURCE /var/www/backup/import.sql"
 
   echo "Configuring Database Settings"
@@ -97,12 +92,6 @@ then
   # system
   echo "New install"
 
-  if [ "$CMS_SKIP_DB_CREATE" == "true" ]
-  then
-    mysql -u root -p$MYSQL_ROOT_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "CREATE DATABASE $CMS_DATABASE_NAME"
-    mysql -u root -p$MYSQL_ROOT_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "GRANT ALL PRIVILEGES ON `$CMS_DATABASE_NAME`.* TO '$CMS_DATABASE_USERNAME'@'%' IDENTIFIED BY '$CMS_DATABASE_PASSWORD'; FLUSH PRIVILEGES;"
-  fi
-  
   echo "Provisioning Database"
   # Populate the database
   mysql -D $CMS_DATABASE_NAME -u $CMS_DATABASE_USERNAME -p$CMS_DATABASE_PASSWORD -h $CMS_DATABASE_HOST -P $CMS_DATABASE_PORT -e "SOURCE /var/www/cms/install/master/structure.sql"
