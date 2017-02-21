@@ -2,7 +2,7 @@
 
 # Pull in any arguments and set defaults
 
-CMS_VERSION=release_1.8.0-rc2
+CMS_VERSION=develop
 XMR_VERSION=release_1.8.0-rc2
 
 ############
@@ -61,16 +61,16 @@ INSTANCE_NAME=xibo
 # should respond to, set it here
 CMS_SERVER_NAME=localhost
 
-## What root passwords would you like to use for
-## your MySQL server root user accounts
-## Random defaults have been generated for you
+## Database Connection Details
+# A random password has been generated for you
+CMS_DATABASE_HOST=mysql
+CMS_DATABASE_PORT=3306
+CMS_DATABASE_USERNAME=cms
 EOF
   echo "$config" > launcher.env
 
-  MYSQL_ROOT_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16)
   CMS_DATABASE_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 16)
 
-  echo "MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD" >> launcher.env
   echo "CMS_DATABASE_PASSWORD=$CMS_DATABASE_PASSWORD" >> launcher.env
 }
 
@@ -82,12 +82,12 @@ function bootstrap {
   docker pull xibosignage/xibo-cms:$CMS_VERSION
   docker pull xibosignage/xibo-xmr:$XMR_VERSION
   docker pull mysql:5.6
-  docker run --name $INSTANCE_NAME-cms-db -v $DATA_DIR/shared/db:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD -d mysql:5.6
+  docker run --name $INSTANCE_NAME-cms-db -v $DATA_DIR/shared/db:/var/lib/mysql -e MYSQL_RANDOM_ROOT_PASSWORD=yes -e MYSQL_DATABASE=$CMS_DATABASE_NAME -e MYSQL_USER=$CMS_DATABASE_USERNAME -e MYSQL_PASSWORD=$CMS_DATABASE_PASSWORD -d mysql:5.6
   docker run --name $INSTANCE_NAME-cms-xmr -p $XMR_PLAYER_PORT:9505 -d xibosignage/xibo-xmr:$XMR_VERSION
   docker run --name $INSTANCE_NAME-cms-web -p $WEBSERVER_PORT:80 -e XMR_HOST=$INSTANCE_NAME-cms-xmr -e CMS_SMTP_SERVER=$CMS_SMTP_SERVER -e CMS_SMTP_USERNAME=$CMS_SMTP_USERNAME \
              -e CMS_SMTP_PASSWORD=$CMS_SMTP_PASSWORD -e CMS_SMTP_USE_TLS=$CMS_SMTP_USE_TLS -e CMS_SMTP_USE_STARTTLS=$CMS_SMTP_USE_STARTTLS \
              -e CMS_SMTP_REWRITE_DOMAIN=$CMS_SMTP_REWRITE_DOMAIN -e CMS_SMTP_HOSTNAME=$CMS_SMTP_HOSTNAME -e CMS_SMTP_FROM_LINE_OVERRIDE=$CMS_SMTP_FROM_LINE_OVERRIDE \
-             -e CMS_DATABASE_PASSWORD=$CMS_DATABASE_PASSWORD -e MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD\
+             -e CMS_DATABASE_PASSWORD=$CMS_DATABASE_PASSWORD \
              -e CMS_SERVER_NAME=$CMS_SERVER_NAME $RESTART_POLICY \
              -d -v $DATA_DIR/shared/cms/custom:/var/www/cms/custom -v $DATA_DIR/shared/backup:/var/www/backup -v $DATA_DIR/shared/cms/web/theme/custom:/var/www/cms/web/theme/custom \
              -v $DATA_DIR/shared/cms/library:/var/www/cms/library -v $DATA_DIR/shared/cms/web/userscripts:/var/www/cms/web/userscripts \
@@ -103,9 +103,9 @@ function bootstrap-dev {
   docker pull xibosignage/xibo-cms-dev:$CMS_VERSION
   docker pull xibosignage/xibo-xmr:$XMR_VERSION
   docker pull mysql:5.6
-  docker run --name $INSTANCE_NAME-cms-db -v $DATA_DIR/shared/db:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD -d mysql:5.6
+  docker run --name $INSTANCE_NAME-cms-db -v $DATA_DIR/shared/db:/var/lib/mysql -e MYSQL_RANDOM_ROOT_PASSWORD=yes -e MYSQL_DATABASE=$CMS_DATABASE_NAME -e MYSQL_USER=$CMS_DATABASE_USERNAME -e MYSQL_PASSWORD=$CMS_DATABASE_PASSWORD -d mysql:5.6
   docker run --name $INSTANCE_NAME-cms-xmr -p $XMR_PLAYER_PORT:9505 -d xibosignage/xibo-xmr:$XMR_VERSION
-  docker run --name $INSTANCE_NAME-cms-web -p $WEBSERVER_PORT:80 -e XIBO_DEV_MODE=true -e XMR_HOST=$INSTANCE_NAME-cms-xmr -e MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD -d -v $DATA_DIR/shared/web:/var/www/cms \
+  docker run --name $INSTANCE_NAME-cms-web -p $WEBSERVER_PORT:80 -e XIBO_DEV_MODE=true -e XMR_HOST=$INSTANCE_NAME-cms-xmr -d -v $DATA_DIR/shared/web:/var/www/cms \
              $RESTART_POLICY --link $INSTANCE_NAME-cms-db:mysql --link $INSTANCE_NAME-cms-xmr:50001 xibosignage/xibo-cms-dev:$CMS_VERSION
 
   echo "CMS is starting. It may take a few moments to be fully running"
