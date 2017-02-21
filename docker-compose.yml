@@ -7,10 +7,10 @@ services:
             - "${DATA_DIR}/shared/db:/var/lib/mysql"
         restart: always
         environment:
-            - MYSQL_RANDOM_PASSWORD=yes
-            - MYSQL_USER=${CMS_DATABASE_USERNAME}
+            - MYSQL_RANDOM_ROOT_PASSWORD=yes
+            - MYSQL_USER=cms
             - MYSQL_PASSWORD=${CMS_DATABASE_PASSWORD}
-            - MYSQL_DATABASE=${CMS_DATABASE_NAME}
+            - MYSQL_DATABASE=cms
         env_file: launcher.env
     cms-xmr:
         image: xibosignage/xibo-xmr:release_1.8.0-rc2
@@ -18,9 +18,9 @@ services:
             - "${XMR_PLAYER_PORT}:9505"
         restart: always
         environment:
-            - DEBUG
-            - IPV6RESPSUPPORT
-            - IPV6PUBSUPPORT
+            - DEBUG=false
+            - IPV6RESPSUPPORT=false
+            - IPV6PUBSUPPORT=false
     cms-web:
         image: xibosignage/xibo-cms:develop
         volumes:

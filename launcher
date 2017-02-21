@@ -82,7 +82,7 @@ function bootstrap {
   docker pull xibosignage/xibo-cms:$CMS_VERSION
   docker pull xibosignage/xibo-xmr:$XMR_VERSION
   docker pull mysql:5.6
-  docker run --name $INSTANCE_NAME-cms-db -v $DATA_DIR/shared/db:/var/lib/mysql -e MYSQL_RANDOM_ROOT_PASSWORD=yes -e MYSQL_DATABASE=$CMS_DATABASE_NAME -e MYSQL_USER=$CMS_DATABASE_USERNAME -e MYSQL_PASSWORD=$CMS_DATABASE_PASSWORD -d mysql:5.6
+  docker run --name $INSTANCE_NAME-cms-db -v $DATA_DIR/shared/db:/var/lib/mysql -e MYSQL_RANDOM_ROOT_PASSWORD=yes -e MYSQL_DATABASE=cms -e MYSQL_USER=cms -e MYSQL_PASSWORD=$CMS_DATABASE_PASSWORD -d mysql:5.6
   docker run --name $INSTANCE_NAME-cms-xmr -p $XMR_PLAYER_PORT:9505 -d xibosignage/xibo-xmr:$XMR_VERSION
   docker run --name $INSTANCE_NAME-cms-web -p $WEBSERVER_PORT:80 -e XMR_HOST=$INSTANCE_NAME-cms-xmr -e CMS_SMTP_SERVER=$CMS_SMTP_SERVER -e CMS_SMTP_USERNAME=$CMS_SMTP_USERNAME \
              -e CMS_SMTP_PASSWORD=$CMS_SMTP_PASSWORD -e CMS_SMTP_USE_TLS=$CMS_SMTP_USE_TLS -e CMS_SMTP_USE_STARTTLS=$CMS_SMTP_USE_STARTTLS \
@@ -103,7 +103,7 @@ function bootstrap-dev {
   docker pull xibosignage/xibo-cms-dev:$CMS_VERSION
   docker pull xibosignage/xibo-xmr:$XMR_VERSION
   docker pull mysql:5.6
-  docker run --name $INSTANCE_NAME-cms-db -v $DATA_DIR/shared/db:/var/lib/mysql -e MYSQL_RANDOM_ROOT_PASSWORD=yes -e MYSQL_DATABASE=$CMS_DATABASE_NAME -e MYSQL_USER=$CMS_DATABASE_USERNAME -e MYSQL_PASSWORD=$CMS_DATABASE_PASSWORD -d mysql:5.6
+  docker run --name $INSTANCE_NAME-cms-db -v $DATA_DIR/shared/db:/var/lib/mysql -e MYSQL_RANDOM_ROOT_PASSWORD=yes -e MYSQL_DATABASE=cms -e MYSQL_USER=cms -e MYSQL_PASSWORD=$CMS_DATABASE_PASSWORD -d mysql:5.6
   docker run --name $INSTANCE_NAME-cms-xmr -p $XMR_PLAYER_PORT:9505 -d xibosignage/xibo-xmr:$XMR_VERSION
   docker run --name $INSTANCE_NAME-cms-web -p $WEBSERVER_PORT:80 -e XIBO_DEV_MODE=true -e XMR_HOST=$INSTANCE_NAME-cms-xmr -d -v $DATA_DIR/shared/web:/var/www/cms \
              $RESTART_POLICY --link $INSTANCE_NAME-cms-db:mysql --link $INSTANCE_NAME-cms-xmr:50001 xibosignage/xibo-cms-dev:$CMS_VERSION
