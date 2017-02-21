@@ -1,0 +1,47 @@
+version: "2"
+
+services:
+    cms-db:
+        image: mysql:5.6
+        volumes:
+            - "${DATA_DIR}/shared/db:/var/lib/mysql"
+        restart: always
+        environment:
+            - MYSQL_ROOT_PASSWORD
+        env_file: launcher.env
+    cms-xmr:
+        image: xibosignage/xibo-xmr:release_1.8.0-rc2
+        ports:
+            - "${XMR_PLAYER_PORT}:9505"
+        restart: always
+        environment:
+            - DEBUG
+            - IPV6RESPSUPPORT
+            - IPV6PUBSUPPORT
+    cms-web:
+        image: xibosignage/xibo-cms:release_1.8.0-rc2
+        volumes:
+            - "${DATA_DIR}/shared/cms/custom:/var/www/cms/custom"
+            - "${DATA_DIR}/shared/backup:/var/www/backup"
+            - "${DATA_DIR}/shared/cms/web/theme/custom:/var/www/cms/web/theme/custom"
+            - "${DATA_DIR}/shared/cms/library:/var/www/cms/library"
+            - "${DATA_DIR}/shared/cms/web/userscripts:/var/www/cms/web/userscripts"
+        restart: always
+        links:
+            - cms-db:mysql
+            - cms-xmr:50001
+        environment:
+            - XMR_HOST
+            - CMS_SMTP_SERVER
+            - CMS_SMTP_USERNAME
+            - CMS_SMTP_PASSWORD
+            - CMS_SMTP_USE_TLS
+            - CMS_SMTP_USE_STARTTLS
+            - CMS_SMTP_REWRITE_DOMAIN
+            - CMS_SMTP_HOSTNAME
+            - CMS_SMTP_FROM_LINE_OVERRIDE
+            - CMS_DATABASE_PASSWORD
+            - CMS_SERVER_NAME
+        ports:
+            - "${WEBSERVER_PORT}:80"
+        env_file: launcher.env

@@ -16,6 +16,9 @@ function genconfig {
 ## Where should we store your user data
 DATA_DIR=$(pwd)
 
+## Auto-start containers? YES/NO
+AUTO_START=YES
+
 ## SMTP Server Configuration
 ## The CMS needs to be able to send email to you
 ## Please enter credentials for a suitable SMTP server
@@ -84,8 +87,8 @@ function bootstrap {
   docker run --name $INSTANCE_NAME-cms-web -p $WEBSERVER_PORT:80 -e XMR_HOST=$INSTANCE_NAME-cms-xmr -e CMS_SMTP_SERVER=$CMS_SMTP_SERVER -e CMS_SMTP_USERNAME=$CMS_SMTP_USERNAME \
              -e CMS_SMTP_PASSWORD=$CMS_SMTP_PASSWORD -e CMS_SMTP_USE_TLS=$CMS_SMTP_USE_TLS -e CMS_SMTP_USE_STARTTLS=$CMS_SMTP_USE_STARTTLS \
              -e CMS_SMTP_REWRITE_DOMAIN=$CMS_SMTP_REWRITE_DOMAIN -e CMS_SMTP_HOSTNAME=$CMS_SMTP_HOSTNAME -e CMS_SMTP_FROM_LINE_OVERRIDE=$CMS_SMTP_FROM_LINE_OVERRIDE \
-             -e CMS_DATABASE_PASSWORD=$CMS_DATABASE_PASSWORD \
-             -e CMS_SERVER_NAME=$CMS_SERVER_NAME \
+             -e CMS_DATABASE_PASSWORD=$CMS_DATABASE_PASSWORD -e MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD\
+             -e CMS_SERVER_NAME=$CMS_SERVER_NAME $RESTART_POLICY \
              -d -v $DATA_DIR/shared/cms/custom:/var/www/cms/custom -v $DATA_DIR/shared/backup:/var/www/backup -v $DATA_DIR/shared/cms/web/theme/custom:/var/www/cms/web/theme/custom \
              -v $DATA_DIR/shared/cms/library:/var/www/cms/library -v $DATA_DIR/shared/cms/web/userscripts:/var/www/cms/web/userscripts \
              --link $INSTANCE_NAME-cms-db:mysql --link $INSTANCE_NAME-cms-xmr:50001 xibosignage/xibo-cms:$CMS_VERSION
@@ -102,8 +105,8 @@ function bootstrap-dev {
   docker pull mysql:5.6
   docker run --name $INSTANCE_NAME-cms-db -v $DATA_DIR/shared/db:/var/lib/mysql -e MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD -d mysql:5.6
   docker run --name $INSTANCE_NAME-cms-xmr -p $XMR_PLAYER_PORT:9505 -d xibosignage/xibo-xmr:$XMR_VERSION
-  docker run --name $INSTANCE_NAME-cms-web -p $WEBSERVER_PORT:80 -e XIBO_DEV_MODE=true -e XMR_HOST=$INSTANCE_NAME-cms-xmr -d -v $DATA_DIR/shared/web:/var/www/cms \
-             --link $INSTANCE_NAME-cms-db:mysql --link $INSTANCE_NAME-cms-xmr:50001 xibosignage/xibo-cms-dev:$CMS_VERSION
+  docker run --name $INSTANCE_NAME-cms-web -p $WEBSERVER_PORT:80 -e XIBO_DEV_MODE=true -e XMR_HOST=$INSTANCE_NAME-cms-xmr -e MYSQL_ROOT_PASSWORD=$MYSQL_ROOT_PASSWORD -d -v $DATA_DIR/shared/web:/var/www/cms \
+             $RESTART_POLICY --link $INSTANCE_NAME-cms-db:mysql --link $INSTANCE_NAME-cms-xmr:50001 xibosignage/xibo-cms-dev:$CMS_VERSION
 
   echo "CMS is starting. It may take a few moments to be fully running"
 }
@@ -181,7 +184,15 @@ then
 else
   echo "Reading configuration"
   CMS_SERVER_NAME=localhost
+  AUTO_START=YES
   source launcher.env
+
+  if [ "$AUTO_START" == "YES" ]
+  then
+    RESTART_POLICY=--restart=always
+  else
+    RESTART_POLICY=
+  fi
 fi
 
 if [ $# -lt 1 ]
