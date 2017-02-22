@@ -15,10 +15,10 @@ global $dbuser;
 global $dbpass;
 global $dbname;
 
-$dbhost = $_SERVER['CMS_DATABASE_HOST'] . ':' . $_SERVER['CMS_DATABASE_PORT'];
-$dbuser = $_SERVER['CMS_DATABASE_USERNAME'];
-$dbpass = $_SERVER['CMS_DATABASE_PASSWORD'];
-$dbname = $_SERVER['CMS_DATABASE_NAME'];
+$dbhost = $_SERVER['MYSQL_HOST'] . ':' . $_SERVER['MYSQL_PORT'];
+$dbuser = $_SERVER['MYSQL_USER'];
+$dbpass = $_SERVER['MYSQL_PASSWORD'];
+$dbname = $_SERVER['MYSQL_DATABASE'];
 
 if (!defined('SECRET_KEY'))
 define('SECRET_KEY','');

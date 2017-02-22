@@ -1,4 +1,4 @@
-version: "2"
+version: "2.1"
 
 services:
     cms-db:
@@ -6,12 +6,11 @@ services:
         volumes:
             - "${DATA_DIR}/shared/db:/var/lib/mysql"
         restart: always
+        env_file: config.env
         environment:
             - MYSQL_RANDOM_ROOT_PASSWORD=yes
             - MYSQL_USER=cms
-            - MYSQL_PASSWORD=${CMS_DATABASE_PASSWORD}
             - MYSQL_DATABASE=cms
-        env_file: config.env
         mem_limit: 1g
     cms-xmr:
         image: xibosignage/xibo-xmr:release_1.8.0-rc2
@@ -19,19 +18,19 @@ services:
             - "${XMR_PLAYER_PORT}:9505"
         restart: always
         environment:
-            - DEBUG=false
-            - IPV6RESPSUPPORT=false
-            - IPV6PUBSUPPORT=false
+            - DEBUG=${DEBUG:-false}
+            - IPV6RESPSUPPORT=${IPV6RESPSUPPORT:-false}
+            - IPV6PUBSUPPORT=${IPV6PUBSUPPORT:-false}
         env_file: config.env
         mem_limit: 256m
     cms-web:
         image: xibosignage/xibo-cms:develop
         volumes:
-            - "${DATA_DIR}/shared/cms/custom:/var/www/cms/custom"
-            - "${DATA_DIR}/shared/backup:/var/www/backup"
-            - "${DATA_DIR}/shared/cms/web/theme/custom:/var/www/cms/web/theme/custom"
-            - "${DATA_DIR}/shared/cms/library:/var/www/cms/library"
-            - "${DATA_DIR}/shared/cms/web/userscripts:/var/www/cms/web/userscripts"
+            - "${DATA_DIR:-/opt/cms}/shared/cms/custom:/var/www/cms/custom"
+            - "${DATA_DIR:-/opt/cms}/shared/backup:/var/www/backup"
+            - "${DATA_DIR:-/opt/cms}/shared/cms/web/theme/custom:/var/www/cms/web/theme/custom"
+            - "${DATA_DIR:-/opt/cms}/shared/cms/library:/var/www/cms/library"
+            - "${DATA_DIR:-/opt/cms}/shared/cms/web/userscripts:/var/www/cms/web/userscripts"
         restart: always
         links:
             - cms-db:mysql
