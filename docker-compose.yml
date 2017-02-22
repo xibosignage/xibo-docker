@@ -34,7 +34,7 @@ services:
             - cms-db:mysql
             - cms-xmr:50001
         environment:
-            - XMR_HOST
+            - XMR_HOST=cms-xmr
             - CMS_SMTP_SERVER
             - CMS_SMTP_USERNAME
             - CMS_SMTP_PASSWORD
