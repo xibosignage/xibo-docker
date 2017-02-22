@@ -11,6 +11,7 @@ services:
             - IPV6RESPSUPPORT=false
             - IPV6PUBSUPPORT=false
         env_file: config.env
+        mem_limit: 256m
     cms-web:
         image: xibosignage/xibo-cms:develop
         volumes:
@@ -27,3 +28,5 @@ services:
         ports:
             - "${WEBSERVER_PORT}:80"
         env_file: config.env
+        mem_limit: 1g
+

@@ -22,8 +22,7 @@ services:
             - cms-web
         environment:
             - MY_DOMAIN_NAME=cms.example.org
-        mem_limit: 2g
-        cpu_shares: 256
+        mem_limit: 256m
         restart: always
         ports: 
             - "80:80"
@@ -32,7 +31,7 @@ services:
             - letsencrypt
     letsencrypt:
         image: quay.io/letsencrypt/letsencrypt:latest
-        command:  bash -c "sleep 6 && certbot certonly --standalone -d wat010.opsrobot.co.uk --text --agree-tos --email george@opsrobot.co.uk --server https://acme-v01.api.letsencrypt.org/directory --rsa-key-size 4096 --verbose --renew-by-default --standalone-supported-challenges http-01"
+        command:  bash -c "sleep 6 && certbot certonly --standalone -d cms.example.org --text --agree-tos --email user@example.org --server https://acme-v01.api.letsencrypt.org/directory --rsa-key-size 4096 --verbose --renew-by-default --standalone-supported-challenges http-01"
         entrypoint: ""
         volumes:
             - /etc/letsencrypt
