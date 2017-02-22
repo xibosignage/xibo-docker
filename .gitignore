@@ -1,6 +1,3 @@
 .vagrant/
 shared/
-launcher-local
-launcher.env
-launcher-test
-.env
+*.env

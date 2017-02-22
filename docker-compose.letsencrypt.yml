@@ -21,7 +21,7 @@ services:
             - letsencrypt
             - cms-web
         environment:
-            - MY_DOMAIN_NAME=wat010.opsrobot.co.uk
+            - MY_DOMAIN_NAME=cms.example.org
         mem_limit: 2g
         cpu_shares: 256
         restart: always
