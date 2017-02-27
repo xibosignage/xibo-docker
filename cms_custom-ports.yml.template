@@ -15,7 +15,7 @@ services:
     cms-xmr:
         image: xibosignage/xibo-xmr:release_1.8.0-rc2
         ports:
-            - "9505:9505"
+            - "65500:9505"
         restart: always
         mem_limit: 256m
         env_file: config.env
@@ -35,5 +35,5 @@ services:
             - XMR_HOST=cms-xmr
         env_file: config.env
         ports:
-            - "80:80"
+            - "65501:80"
         mem_limit: 1g

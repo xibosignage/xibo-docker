@@ -4,12 +4,8 @@ services:
     cms-xmr:
         image: xibosignage/xibo-xmr:release_1.8.0-rc2
         ports:
-            - "${XMR_PLAYER_PORT}:9505"
+            - "9505:9505"
         restart: always
-        environment:
-            - DEBUG=false
-            - IPV6RESPSUPPORT=false
-            - IPV6PUBSUPPORT=false
         env_file: config.env
         mem_limit: 256m
     cms-web:
@@ -26,7 +22,7 @@ services:
         environment:
             - XMR_HOST=cms-xmr
         ports:
-            - "${WEBSERVER_PORT}:80"
+            - "80:80"
         env_file: config.env
         mem_limit: 1g
 

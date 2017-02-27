@@ -2,9 +2,9 @@ FROM ubuntu:14.04
 MAINTAINER Dan Garner <dan@springsignage.com>
 
 ENV XMR_VERSION 0.3
-ENV DEBUG false
-ENV IPV6RESPSUPPORT false
-ENV IPV6PUBSUPPORT false
+ENV XMR_DEBUG false
+ENV XMR_IPV6RESPSUPPORT false
+ENV XMR_IPV6PUBSUPPORT false
 
 RUN apt-get update && apt-get install -y \
   software-properties-common
