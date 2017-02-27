@@ -18,15 +18,13 @@ services:
             - "9505:9505"
         restart: always
         mem_limit: 256m
+        environment:
+            - XMR_DEBUG: "true"
         env_file: config.env
     cms-web:
         image: xibosignage/xibo-cms:develop
         volumes:
-            - "./shared/cms/custom:/var/www/cms/custom"
-            - "./shared/backup:/var/www/backup"
-            - "./shared/cms/web/theme/custom:/var/www/cms/web/theme/custom"
-            - "./shared/cms/library:/var/www/cms/library"
-            - "./shared/cms/web/userscripts:/var/www/cms/web/userscripts"
+            - "./shared/cms/web:/var/www/cms"
         restart: always
         links:
             - cms-db:mysql
@@ -35,5 +33,5 @@ services:
             - XMR_HOST=cms-xmr
         env_file: config.env
         ports:
-            - "80:80"
+            - "8080:80"
         mem_limit: 1g
