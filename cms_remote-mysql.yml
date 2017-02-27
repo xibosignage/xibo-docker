@@ -2,14 +2,14 @@ version: "2"
 
 services:
     cms-xmr:
-        image: xibosignage/xibo-xmr:release_1.8.0-rc2
+        image: xibosignage/xibo-xmr:release_1.8.0-rc3
         ports:
             - "9505:9505"
         restart: always
         env_file: config.env
         mem_limit: 256m
     cms-web:
-        image: xibosignage/xibo-cms:develop
+        image: xibosignage/xibo-cms:release_1.8.0-rc3
         volumes:
             - "${DATA_DIR}/shared/cms/custom:/var/www/cms/custom"
             - "${DATA_DIR}/shared/backup:/var/www/backup"
