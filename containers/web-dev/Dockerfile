@@ -25,7 +25,10 @@ RUN apt-get update && apt-get install -y \
   anacron
 
 # Enable apache mods and PHP extensions
-RUN a2enmod php5 && a2enmod rewrite && a2enmod env && php5enmod mcrypt && a2enmod xsendfile
+RUN a2enmod php5 && a2enmod rewrite && a2enmod env && php5enmod mcrypt && a2enmod xsendfile && a2dismod mpm_event && a2enmod mpm_prefork
+
+# Configure mpm_prefork
+ADD mpm_prefork.conf /etc/apache2/mods-available/mpm_prefork.conf
 
 # Update the PHP.ini file
 RUN sed -i "s/error_reporting = .*$/error_reporting = E_ERROR | E_WARNING | E_PARSE/" /etc/php5/apache2/php.ini
@@ -40,8 +43,8 @@ RUN awk '/PATH=/ { print; print "MAILTO=\"\""; next}1' /etc/crontab > /tmp/cront
 RUN awk '/LOGNAME=root/ { print; print "MAILTO=\"\""; next}1' /etc/anacrontab > /tmp/anacrontab && mv /tmp/anacrontab /etc/anacrontab
 
 # Setup persistent environment variables
-ENV CMS_VERSION=1.8.0-rc2 XMR_HOST=xmr CMS_DB_VERSION=129 CMS_SERVER_NAME=localhost
-ENV CMS_DATABASE_HOST=mysql CMS_DATABASE_USERNAME=cms CMS_DATABASE_PASSWORD=none CMS_DATABASE_PORT=3306 CMS_DATABASE_NAME=cms
+ENV CMS_VERSION=1.8.0-rc3 XMR_HOST=xmr CMS_DB_VERSION=129 CMS_SERVER_NAME=localhost
+ENV MYSQL_HOST=mysql MYSQL_USER=cms MYSQL_PASSWORD=none MYSQL_PORT=3306 MYSQL_DATABASE=cms
 ENV CMS_SERVER=smtp.gmail.com:587 CMS_SMTP_USERNAME=none CMS_SMTP_PASSWORD=none CMS_SMTP_USE_TLS=YES CMS_SMTP_USE_STARTTLS=YES CMS_SMTP_REWRITE_DOMAIN=gmail.com CMS_SMTP_HOSTNAME=none CMS_SMTP_FROM_LINE_OVERRIDE=YES
 
 # Expose port 80
@@ -51,7 +54,8 @@ EXPOSE 80
 RUN mkdir -p /var/www/cms && curl -o cms.tar.gz -SL https://github.com/xibosignage/xibo-cms/releases/download/${CMS_VERSION}/xibo-cms-${CMS_VERSION}.tar.gz \
 	&& tar --strip=1 -xzf cms.tar.gz -C /var/www/cms \
 	&& rm cms.tar.gz && rm /var/www/cms/web/install/index.php
-ADD https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh  /usr/local/bin/wait-for-it.sh
+# https://github.com/vishnubob/wait-for-it - MIT Licence
+ADD wait-for-it.sh  /usr/local/bin/wait-for-it.sh
 ADD settings.php-template /var/www/cms/web/settings.php
 ADD settings.php-template /tmp/settings.php-template
 ADD ssmtp.conf /etc/ssmtp/ssmtp.conf

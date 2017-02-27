@@ -1,0 +1,39 @@
+version: "2"
+
+services:
+    cms-db:
+        image: mysql:5.6
+        volumes:
+            - "./shared/db:/var/lib/mysql"
+        restart: always
+        environment:
+            - MYSQL_DATABASE=cms
+            - MYSQL_USER=cms
+            - MYSQL_RANDOM_ROOT_PASSWORD=yes
+        mem_limit: 1g
+        env_file: config.env
+    cms-xmr:
+        image: xibosignage/xibo-xmr:release_1.8.0-rc3
+        ports:
+            - "65500:9505"
+        restart: always
+        mem_limit: 256m
+        env_file: config.env
+    cms-web:
+        image: xibosignage/xibo-cms:release_1.8.0-rc3
+        volumes:
+            - "./shared/cms/custom:/var/www/cms/custom"
+            - "./shared/backup:/var/www/backup"
+            - "./shared/cms/web/theme/custom:/var/www/cms/web/theme/custom"
+            - "./shared/cms/library:/var/www/cms/library"
+            - "./shared/cms/web/userscripts:/var/www/cms/web/userscripts"
+        restart: always
+        links:
+            - cms-db:mysql
+            - cms-xmr:50001
+        environment:
+            - XMR_HOST=cms-xmr
+        env_file: config.env
+        ports:
+            - "65501:80"
+        mem_limit: 1g
