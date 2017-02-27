@@ -13,7 +13,7 @@ services:
         mem_limit: 1g
         env_file: config.env
     cms-xmr:
-        image: xibosignage/xibo-xmr:release_1.8.0-rc2
+        image: xibosignage/xibo-xmr:release_1.8.0-rc3
         ports:
             - "9505:9505"
         restart: always
@@ -22,7 +22,7 @@ services:
             - XMR_DEBUG: "true"
         env_file: config.env
     cms-web:
-        image: xibosignage/xibo-cms:develop
+        image: xibosignage/xibo-cms-dev:release_1.8.0-rc3
         volumes:
             - "./shared/cms/web:/var/www/cms"
         restart: always
