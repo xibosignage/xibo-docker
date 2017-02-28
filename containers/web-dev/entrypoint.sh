@@ -191,7 +191,7 @@ fi
 
 echo "Running maintenance"
 cd /var/www/cms
-su -s /bin/bash -c '/usr/bin/php bin/run.php 1' www-data
+su -s /bin/bash -c 'cd /var/www/cms && /usr/bin/php bin/run.php 1' www-data
 
 echo "Starting cron"
 /usr/sbin/cron
