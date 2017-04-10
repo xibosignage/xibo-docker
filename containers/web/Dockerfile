@@ -1,4 +1,4 @@
-FROM xibosignage/xibo-cms-dev:release_1.8.0
+FROM xibosignage/xibo-cms-dev:release_1.8.1
 MAINTAINER Dan Garner <dan@springsignage.com>
 
 VOLUME /var/www/cms/library
