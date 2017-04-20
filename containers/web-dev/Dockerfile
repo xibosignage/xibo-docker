@@ -71,6 +71,7 @@ COPY apache-config.conf /etc/apache2/sites-enabled/000-default.conf
 # Copy up the various provisioning scripting
 COPY entrypoint.sh /entrypoint.sh
 COPY httpd-foreground /usr/local/bin/httpd-foreground
+COPY anacron /etc/cron.d/anacron
 RUN chmod +x /entrypoint.sh /usr/local/bin/httpd-foreground /usr/local/bin/wait-for-it.sh
 
 # Create a flag file which the bootstrapping process will delete
