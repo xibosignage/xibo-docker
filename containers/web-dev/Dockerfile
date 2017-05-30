@@ -30,14 +30,6 @@ RUN a2enmod php5 && a2enmod rewrite && a2enmod env && php5enmod mcrypt && a2enmo
 # Configure mpm_prefork
 ADD mpm_prefork.conf /etc/apache2/mods-available/mpm_prefork.conf
 
-# Update the PHP.ini file
-RUN sed -i "s/error_reporting = .*$/error_reporting = E_ERROR | E_WARNING | E_PARSE/" /etc/php5/apache2/php.ini
-RUN sed -i "s/post_max_size = .*$/post_max_size = 1999M/" /etc/php5/apache2/php.ini
-RUN sed -i "s/upload_max_filesize = .*$/upload_max_filesize = 1999M/" /etc/php5/apache2/php.ini
-RUN sed -i "s/max_execution_time = .*$/max_execution_time = 300/" /etc/php5/apache2/php.ini
-RUN sed -i "s/session.gc_probability = .*$/session.gc_probability = 1/" /etc/php5/apache2/php.ini
-RUN sed -i "s/session.gc_divisor = .*$/session.gc_divisor = 100/" /etc/php5/apache2/php.ini
-
 # Disable cron sending emails to root
 RUN awk '/PATH=/ { print; print "MAILTO=\"\""; next}1' /etc/crontab > /tmp/crontab && mv /tmp/crontab /etc/crontab
 RUN awk '/LOGNAME=root/ { print; print "MAILTO=\"\""; next}1' /etc/anacrontab > /tmp/anacrontab && mv /tmp/anacrontab /etc/anacrontab
@@ -46,6 +38,16 @@ RUN awk '/LOGNAME=root/ { print; print "MAILTO=\"\""; next}1' /etc/anacrontab > 
 ENV CMS_VERSION=1.8.1 XMR_HOST=xmr CMS_DB_VERSION=132 CMS_SERVER_NAME=localhost
 ENV MYSQL_HOST=mysql MYSQL_USER=cms MYSQL_PASSWORD=none MYSQL_PORT=3306 MYSQL_DATABASE=cms
 ENV CMS_SERVER=smtp.gmail.com:587 CMS_SMTP_USERNAME=none CMS_SMTP_PASSWORD=none CMS_SMTP_USE_TLS=YES CMS_SMTP_USE_STARTTLS=YES CMS_SMTP_REWRITE_DOMAIN=gmail.com CMS_SMTP_HOSTNAME=none CMS_SMTP_FROM_LINE_OVERRIDE=YES
+ENV CMS_ALIAS=none CMS_PHP_SESSION_GC_MAXLIFETIME=1440
+
+# Update the PHP.ini file
+RUN sed -i "s/error_reporting = .*$/error_reporting = E_ERROR | E_WARNING | E_PARSE/" /etc/php5/apache2/php.ini
+RUN sed -i "s/post_max_size = .*$/post_max_size = 1999M/" /etc/php5/apache2/php.ini
+RUN sed -i "s/upload_max_filesize = .*$/upload_max_filesize = 1999M/" /etc/php5/apache2/php.ini
+RUN sed -i "s/max_execution_time = .*$/max_execution_time = 300/" /etc/php5/apache2/php.ini
+RUN sed -i "s/session.gc_probability = .*$/session.gc_probability = 1/" /etc/php5/apache2/php.ini
+RUN sed -i "s/session.gc_divisor = .*$/session.gc_divisor = 100/" /etc/php5/apache2/php.ini
+RUN sed -i "s/session.gc_maxlifetime = .*$/session.gc_maxlifetime = $CMS_PHP_SESSION_GC_MAXLIFETIME/" /etc/php5/apache2/php.ini
 
 # Expose port 80
 EXPOSE 80
