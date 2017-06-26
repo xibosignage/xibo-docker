@@ -203,6 +203,9 @@ then
     /bin/sed -i "s|.*RewriteBase.*$|RewriteBase $CMS_ALIAS|" /var/www/cms/web/.htaccess
 fi
 
+# Configure PHP session.gc_maxlifetime
+sed -i "s/session.gc_maxlifetime = .*$/session.gc_maxlifetime = $CMS_PHP_SESSION_GC_MAXLIFETIME/" /etc/php5/apache2/php.ini
+
 echo "Running maintenance"
 cd /var/www/cms
 su -s /bin/bash -c 'cd /var/www/cms && /usr/bin/php bin/run.php 1' www-data
