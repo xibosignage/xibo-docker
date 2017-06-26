@@ -47,7 +47,6 @@ RUN sed -i "s/upload_max_filesize = .*$/upload_max_filesize = 1999M/" /etc/php5/
 RUN sed -i "s/max_execution_time = .*$/max_execution_time = 300/" /etc/php5/apache2/php.ini
 RUN sed -i "s/session.gc_probability = .*$/session.gc_probability = 1/" /etc/php5/apache2/php.ini
 RUN sed -i "s/session.gc_divisor = .*$/session.gc_divisor = 100/" /etc/php5/apache2/php.ini
-RUN sed -i "s/session.gc_maxlifetime = .*$/session.gc_maxlifetime = $CMS_PHP_SESSION_GC_MAXLIFETIME/" /etc/php5/apache2/php.ini
 
 # Expose port 80
 EXPOSE 80
