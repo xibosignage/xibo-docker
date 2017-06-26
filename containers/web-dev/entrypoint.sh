@@ -196,6 +196,13 @@ then
     /bin/cp /tmp/settings-custom.php /var/www/cms/custom
 fi
 
+if [ ! "$CMS_ALIAS" == "none" ]
+then
+    echo "Setting up CMS alias"
+    /bin/sed -i "s|.*Alias.*$|Alias $CMS_ALIAS /var/www/cms/web|" /etc/apache2/sites-enabled/000-default.conf
+    /bin/sed -i "s|.*RewriteBase.*$|RewriteBase $CMS_ALIAS|" /var/www/cms/web/.htaccess
+fi
+
 echo "Running maintenance"
 cd /var/www/cms
 su -s /bin/bash -c 'cd /var/www/cms && /usr/bin/php bin/run.php 1' www-data
