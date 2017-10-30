@@ -204,7 +204,10 @@ then
 fi
 
 # Configure PHP session.gc_maxlifetime
-sed -i "s/session.gc_maxlifetime = .*$/session.gc_maxlifetime = $CMS_PHP_SESSION_GC_MAXLIFETIME/" /etc/php5/apache2/php.ini
+sed -i "s/session.gc_maxlifetime = .*$/session.gc_maxlifetime = $CMS_PHP_SESSION_GC_MAXLIFETIME/" /etc/php/5.6/apache2/php.ini
+sed -i "s/post_max_size = .*$/post_max_size = $CMS_PHP_POST_MAX_SIZE/" /etc/php/5.6/apache2/php.ini
+sed -i "s/upload_max_filesize = .*$/upload_max_filesize = $CMS_PHP_UPLOAD_MAX_FILESIZE/" /etc/php/5.6/apache2/php.ini
+sed -i "s/max_execution_time = .*$/max_execution_time = $CMS_PHP_MAX_EXECUTION_TIME/" /etc/php/5.6/apache2/php.ini
 
 echo "Running maintenance"
 cd /var/www/cms
