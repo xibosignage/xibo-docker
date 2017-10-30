@@ -150,7 +150,12 @@ echo "Configuring Backups"
 echo "#!/bin/bash" > /etc/cron.daily/cms-db-backup
 echo "" >> /etc/cron.daily/cms-db-backup
 echo "/bin/mkdir -p /var/www/backup/db" >> /etc/cron.daily/cms-db-backup
-echo "/usr/bin/mysqldump --single-transaction -u $MYSQL_USER -p$MYSQL_PASSWORD -h $MYSQL_HOST -P $MYSQL_PORT $MYSQL_DATABASE | gzip > /var/www/backup/db/latest.sql.gz" >> /etc/cron.daily/cms-db-backup
+echo "/usr/bin/mysqldump --single-transaction -u '$MYSQL_USER' -p'$MYSQL_PASSWORD' -h $MYSQL_HOST -P $MYSQL_PORT $MYSQL_DATABASE > /var/www/backup/db/latest.sql" >> /etc/cron.daily/cms-db-backup
+echo "RESULT=\$?" >> /etc/cron.daily/cms-db-backup
+echo "if [ \$RESULT -eq 0 ]; then" >> /etc/cron.daily/cms-db-backup
+echo "  mv /var/www/backup/db/latest.sql.gz /var/www/backup/db/previous.sql.gz" >> /etc/cron.daily/cms-db-backup
+echo "  cd /var/www/backup/db && gzip latest.sql" >> /etc/cron.daily/cms-db-backup
+echo "fi" >> /etc/cron.daily/cms-db-backup
 /bin/chmod 700 /etc/cron.daily/cms-db-backup
 
 # Update /var/www/maintenance with current environment (for cron)
