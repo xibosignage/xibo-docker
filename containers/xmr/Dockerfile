@@ -9,14 +9,13 @@ ENV XMR_IPV6PUBSUPPORT false
 RUN apt-get update && apt-get install -y \
   software-properties-common
 
-RUN DEBIAN_FRONTEND=noninteractive add-apt-repository ppa:chris-lea/zeromq
-RUN DEBIAN_FRONTEND=noninteractive add-apt-repository ppa:alexharrington/php-zmq
+RUN LC_ALL=C.UTF-8 DEBIAN_FRONTEND=noninteractive add-apt-repository ppa:ondrej/php
 
 # Install apache, PHP, and supplimentary programs.
 RUN apt-get update && apt-get install -y \
   curl \
-  php5-cli \
-  php5-zmq
+  php5.6-cli \
+  php5.6-zmq
 
 EXPOSE 9505 50001
 
