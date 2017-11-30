@@ -63,6 +63,10 @@ EXPOSE 80
 RUN mkdir -p /var/www/cms && curl -o cms.tar.gz -SL https://github.com/xibosignage/xibo-cms/releases/download/${CMS_VERSION}/xibo-cms-${CMS_VERSION}.tar.gz \
 	&& tar --strip=1 -xzf cms.tar.gz -C /var/www/cms \
 	&& rm cms.tar.gz && rm /var/www/cms/web/install/index.php
+
+# Patch for Maintenance. Remove after 1.8.3
+RUN rm /var/www/cms/lib/Controller/Maintenance.php && curl -o /var/www/cms/lib/Controller/Maintenance.php -SL https://github.com/dasgarner/xibo-cms/raw/14d445ee4bb670ff6d4d6b27789eab085c4bda15/lib/Controller/Maintenance.php
+
 # https://github.com/vishnubob/wait-for-it - MIT Licence
 ADD wait-for-it.sh  /usr/local/bin/wait-for-it.sh
 ADD settings.php-template /var/www/cms/web/settings.php
