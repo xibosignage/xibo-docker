@@ -64,8 +64,8 @@ RUN mkdir -p /var/www/cms && curl -o cms.tar.gz -SL https://github.com/xibosigna
 	&& tar --strip=1 -xzf cms.tar.gz -C /var/www/cms \
 	&& rm cms.tar.gz && rm /var/www/cms/web/install/index.php
 
-# Patch for Maintenance. Remove after 1.8.3
-RUN rm /var/www/cms/lib/Controller/Maintenance.php && curl -o /var/www/cms/lib/Controller/Maintenance.php -SL https://github.com/dasgarner/xibo-cms/raw/14d445ee4bb670ff6d4d6b27789eab085c4bda15/lib/Controller/Maintenance.php
+# Patch for User logout. Remove after 1.8.3
+RUN rm /var/www/cms/lib/Entity/User.php && curl -o /var/www/cms/lib/Entity/User.php -SL https://github.com/dasgarner/xibo-cms/raw/673bab3619eaf901802ba0343eb9a984fbc8c79d/lib/Entity/User.php
 
 # https://github.com/vishnubob/wait-for-it - MIT Licence
 ADD wait-for-it.sh  /usr/local/bin/wait-for-it.sh
