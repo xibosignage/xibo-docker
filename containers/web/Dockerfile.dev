@@ -64,11 +64,6 @@ RUN mkdir -p /var/www/cms && curl -o cms.tar.gz -SL https://github.com/xibosigna
 	&& tar --strip=1 -xzf cms.tar.gz -C /var/www/cms \
 	&& rm cms.tar.gz && rm /var/www/cms/web/install/index.php
 
-# Patch for User logout. Remove after 1.8.3
-RUN rm /var/www/cms/lib/Entity/User.php && curl -o /var/www/cms/lib/Entity/User.php -SL https://github.com/dasgarner/xibo-cms/raw/673bab3619eaf901802ba0343eb9a984fbc8c79d/lib/Entity/User.php
-# Patch for #1357 Error on upgrade from 1.7 series. Remove after 1.8.3
-RUN rm /var/www/cms/lib/Entity/Media.php && curl -o /var/www/cms/lib/Entity/Media.php -SL https://raw.githubusercontent.com/dasgarner/xibo-cms/683ef69952c9b0bb464d668239c83c783849899f/lib/Entity/Media.php
-
 # https://github.com/vishnubob/wait-for-it - MIT Licence
 ADD wait-for-it.sh  /usr/local/bin/wait-for-it.sh
 ADD settings.php-template /var/www/cms/web/settings.php
