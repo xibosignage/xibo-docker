@@ -5,6 +5,7 @@ services:
         image: mysql:5.6
         volumes:
             - "./shared/db:/var/lib/mysql"
+        restart: always
         environment:
             - MYSQL_DATABASE=cms
             - MYSQL_USER=cms
@@ -15,6 +16,7 @@ services:
         image: xibosignage/xibo-xmr:release-0.7
         ports:
             - "9505:9505"
+        restart: always
         mem_limit: 256m
         env_file: config.env
     cms-web:
