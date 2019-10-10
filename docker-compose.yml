@@ -16,24 +16,24 @@ services:
         image: xibosignage/xibo-xmr:release-0.7
         ports:
             - "9505:9505"
+        restart: always
         mem_limit: 256m
         env_file: config.env
-        restart: always
     cms-web:
-        image: xibosignage/xibo-cms:release-2.2.0-alpha2
+        image: xibosignage/xibo-cms:release-2.2.0-beta
         volumes:
             - "./shared/cms/custom:/var/www/cms/custom"
             - "./shared/backup:/var/www/backup"
             - "./shared/cms/web/theme/custom:/var/www/cms/web/theme/custom"
             - "./shared/cms/library:/var/www/cms/library"
             - "./shared/cms/web/userscripts:/var/www/cms/web/userscripts"
+        restart: always
         links:
             - cms-db:mysql
             - cms-xmr:50001
         environment:
             - XMR_HOST=cms-xmr
         env_file: config.env
-        restart: always
         ports:
             - "80:80"
         mem_limit: 1g
