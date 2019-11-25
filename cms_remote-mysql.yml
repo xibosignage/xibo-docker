@@ -9,7 +9,7 @@ services:
         env_file: config.env
         mem_limit: 256m
     cms-web:
-        image: xibosignage/xibo-cms:release-2.2.0-rc1
+        image: xibosignage/xibo-cms:release-2.2.0
         volumes:
             - "./shared/cms/custom:/var/www/cms/custom"
             - "./shared/backup:/var/www/backup"
@@ -25,4 +25,6 @@ services:
             - "80:80"
         env_file: config.env
         mem_limit: 1g
-
+    cms-quickchart:
+      image: ianw/quickchart
+      restart: always
