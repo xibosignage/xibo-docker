@@ -5,13 +5,13 @@ services:
         image: mysql:5.6
         volumes:
             - "./shared/db:/var/lib/mysql"
-        restart: always
         environment:
             - MYSQL_DATABASE=cms
             - MYSQL_USER=cms
             - MYSQL_RANDOM_ROOT_PASSWORD=yes
         mem_limit: 1g
         env_file: config.env
+        restart: always
     cms-xmr:
         image: xibosignage/xibo-xmr:release-0.7
         ports:
@@ -20,7 +20,7 @@ services:
         mem_limit: 256m
         env_file: config.env
     cms-web:
-        image: xibosignage/xibo-cms:release-2.1.2
+        image: xibosignage/xibo-cms:release-2.2.0
         volumes:
             - "./shared/cms/custom:/var/www/cms/custom"
             - "./shared/backup:/var/www/backup"
@@ -37,3 +37,6 @@ services:
         ports:
             - "80:80"
         mem_limit: 1g
+    cms-quickchart:
+      image: ianw/quickchart
+      restart: always
