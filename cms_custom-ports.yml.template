@@ -20,7 +20,7 @@ services:
         mem_limit: 256m
         env_file: config.env
     cms-web:
-        image: xibosignage/xibo-cms:release-2.0.5
+        image: xibosignage/xibo-cms:release-2.0.6
         volumes:
             - "./shared/cms/custom:/var/www/cms/custom"
             - "./shared/backup:/var/www/backup"
