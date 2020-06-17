@@ -27,6 +27,7 @@ services:
             - "./shared/cms/web/theme/custom:/var/www/cms/web/theme/custom:Z"
             - "./shared/cms/library:/var/www/cms/library:Z"
             - "./shared/cms/web/userscripts:/var/www/cms/web/userscripts:Z"
+            - "./shared/cms/ca-certs:/var/www/cms/ca-certs:Z"
         restart: always
         links:
             - cms-db:mysql
