@@ -1,4 +1,4 @@
-:version: "2.1"
+version: "2.1"
 
 services:
     cms-xmr:
@@ -9,7 +9,7 @@ services:
         env_file: config.env
         mem_limit: 256m
     cms-web:
-        image: xibosignage/xibo-cms:release-2.3.6
+        image: xibosignage/xibo-cms:release-2.3.7
         volumes:
             - "./shared/cms/custom:/var/www/cms/custom:Z"
             - "./shared/backup:/var/www/backup:Z"
