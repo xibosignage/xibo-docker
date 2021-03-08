@@ -12,6 +12,8 @@ services:
         mem_limit: 1g
         env_file: config.env
         restart: always
+        networks:
+            - xibo-net
     cms-xmr:
         image: xibosignage/xibo-xmr:release-0.8
         ports:
@@ -19,6 +21,9 @@ services:
         restart: always
         mem_limit: 256m
         env_file: config.env
+        networks:
+            - ngnix-proxy
+            - xibo-net
     cms-web:
         image: xibosignage/xibo-cms:release-2.3.9
         volumes:
@@ -35,9 +40,22 @@ services:
         environment:
             - XMR_HOST=cms-xmr
         env_file: config.env
-        ports:
-            - "80:80"
+        expose:
+            - "80"
+            - "443"
         mem_limit: 1g
+        networks:
+            - ngnix-proxy
+            - xibo-net
     cms-quickchart:
       image: ianw/quickchart
       restart: always
+      networks:
+          - ngnix-proxy
+          - xibo-net
+networks:
+    ngnix-proxy:
+        external:
+            name: nginx-proxy
+    xibo-net:
+        name: xibo-net
