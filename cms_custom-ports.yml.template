@@ -2,7 +2,7 @@ version: "2.1"
 
 services:
     cms-db:
-        image: mysql:5.6
+        image: mysql:5.7
         volumes:
             - "./shared/db:/var/lib/mysql:Z"
         restart: always
@@ -20,7 +20,7 @@ services:
         mem_limit: 256m
         env_file: config.env
     cms-web:
-        image: xibosignage/xibo-cms:release-2.3.9
+        image: xibosignage/xibo-cms:release-2.3.10
         volumes:
             - "./shared/cms/custom:/var/www/cms/custom:Z"
             - "./shared/backup:/var/www/backup:Z"
