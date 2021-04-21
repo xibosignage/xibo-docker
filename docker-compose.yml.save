@@ -2,7 +2,6 @@ version: "2.1"
 
 services:
     cms-db:
-        container_name: xibo-db
         image: mysql:5.6
         volumes:
             - "./shared/db:/var/lib/mysql:Z"
@@ -16,7 +15,6 @@ services:
         networks:
             - xibo-net
     cms-xmr:
-        container_name: xibo-xmr
         image: xibosignage/xibo-xmr:release-0.8
         ports:
             - "9505:9505"
@@ -24,10 +22,9 @@ services:
         mem_limit: 256m
         env_file: config.env
         networks:
-            - nginx-proxy
+            - ngnix-proxy
             - xibo-net
     cms-web:
-        container_name: xibo-cms
         image: xibosignage/xibo-cms:release-2.3.9
         volumes:
             - "./shared/cms/custom:/var/www/cms/custom:Z"
@@ -35,31 +32,29 @@ services:
             - "./shared/cms/web/theme/custom:/var/www/cms/web/theme/custom:Z"
             - "./shared/cms/library:/var/www/cms/library:Z"
             - "./shared/cms/web/userscripts:/var/www/cms/web/userscripts:Z"
-           # - "./shared/cms/ca-certs:/var/www/cms/ca-certs:Z"
+            - "./shared/cms/ca-certs:/var/www/cms/ca-certs:Z"
         restart: always
         links:
             - cms-db:mysql
             - cms-xmr:50001
         environment:
-            - VIRTUAL_HOST=xibo.dcplibrary.org
-            - LETSENCRYPT_HOST=xibo.dcplibrary.org
-            - XMR_HOST=cms-xmr
+	            - XMR_HOST=cms-xmr
         env_file: config.env
         expose:
             - "80"
             - "443"
         mem_limit: 1g
         networks:
-            - nginx-proxy
+            - ngnix-proxy
             - xibo-net
     cms-quickchart:
       image: ianw/quickchart
       restart: always
       networks:
-          - nginx-proxy
+          - ngnix-proxy
           - xibo-net
 networks:
-    nginx-proxy:
+    ngnix-proxy:
         external:
             name: nginx-proxy
     xibo-net:
