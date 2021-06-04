@@ -34,6 +34,7 @@ services:
             - cms-xmr:50001
         environment:
             - XMR_HOST=cms-xmr
+            - CMS_USE_MEMCACHED=true
             - MEMCACHED_HOST=cms-memcached
         env_file: config.env
         ports:
