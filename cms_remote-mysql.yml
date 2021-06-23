@@ -9,7 +9,7 @@ services:
         env_file: config.env
         mem_limit: 256m
     cms-web:
-        image: xibosignage/xibo-cms:release-2.3.10
+        image: xibosignage/xibo-cms:release-3.0.0
         volumes:
             - "./shared/cms/custom:/var/www/cms/custom:Z"
             - "./shared/backup:/var/www/backup:Z"
@@ -22,10 +22,17 @@ services:
             - cms-xmr:50001
         environment:
             - XMR_HOST=cms-xmr
+            - CMS_USE_MEMCACHED=true
+            - MEMCACHED_HOST=cms-memcached
         ports:
             - "80:80"
         env_file: config.env
         mem_limit: 1g
+    cms-memcached:
+        image: memcached:alpine
+        command: memcached -m 15
+        restart: always
+        mem_limit: 100M
     cms-quickchart:
       image: ianw/quickchart
       restart: always
