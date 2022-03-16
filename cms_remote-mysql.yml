@@ -2,7 +2,7 @@
 
 services:
     cms-xmr:
-        image: xibosignage/xibo-xmr:release-0.8
+        image: xibosignage/xibo-xmr:release-0.9
         ports:
             - "9505:9505"
         restart: always
