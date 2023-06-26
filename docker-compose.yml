@@ -2,7 +2,7 @@ version: "2.1"
 
 services:
     cms-db:
-        image: mysql:5.7
+        image: mysql:8
         volumes:
             - "./shared/db:/var/lib/mysql:Z"
         environment:
@@ -13,14 +13,14 @@ services:
         env_file: config.env
         restart: always
     cms-xmr:
-        image: xibosignage/xibo-xmr:release-0.8
+        image: xibosignage/xibo-xmr:0.10
         ports:
             - "9505:9505"
         restart: always
         mem_limit: 256m
         env_file: config.env
     cms-web:
-        image: xibosignage/xibo-cms:release-3.1.0-beta
+        image: xibosignage/xibo-cms:release-4.0.0-alpha
         volumes:
             - "./shared/cms/custom:/var/www/cms/custom:Z"
             - "./shared/backup:/var/www/backup:Z"
