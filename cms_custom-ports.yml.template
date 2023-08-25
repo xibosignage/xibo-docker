@@ -2,7 +2,7 @@ version: "2.1"
 
 services:
     cms-db:
-        image: mysql:8
+        image: mysql:8.0
         volumes:
             - "./shared/db:/var/lib/mysql:Z"
         restart: always
