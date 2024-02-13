@@ -20,7 +20,7 @@ services:
         mem_limit: 256m
         env_file: config.env
     cms-web:
-        image: ghcr.io/xibosignage/xibo-cms:release-4.0.6
+        image: ghcr.io/xibosignage/xibo-cms:release-4.0.7
         volumes:
             - "./shared/cms/custom:/var/www/cms/custom:Z"
             - "./shared/backup:/var/www/backup:Z"
@@ -29,10 +29,8 @@ services:
             - "./shared/cms/web/userscripts:/var/www/cms/web/userscripts:Z"
             - "./shared/cms/ca-certs:/var/www/cms/ca-certs:Z"
         restart: always
-        links:
-            - cms-db:mysql
-            - cms-xmr:50001
         environment:
+            - MYSQL_HOST=cms-db
             - XMR_HOST=cms-xmr
             - CMS_USE_MEMCACHED=true
             - MEMCACHED_HOST=cms-memcached
