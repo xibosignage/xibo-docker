@@ -13,14 +13,14 @@ services:
         mem_limit: 1g
         env_file: config.env
     cms-xmr:
-        image: ghcr.io/xibosignage/xibo-xmr:develop
+        image: ghcr.io/xibosignage/xibo-xmr:1.0
         ports:
             - "65500:9505"
         restart: always
         mem_limit: 256m
         env_file: config.env
     cms-web:
-        image: ghcr.io/xibosignage/xibo-cms:release-4.2.0
+        image: ghcr.io/xibosignage/xibo-cms:release-4.2.1
         volumes:
             - "./shared/cms/custom:/var/www/cms/custom:Z"
             - "./shared/backup:/var/www/backup:Z"
