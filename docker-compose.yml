@@ -1,5 +1,3 @@
-version: "2.1"
-
 services:
     cms-db:
         image: mysql:8.4
