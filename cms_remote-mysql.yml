@@ -2,7 +2,7 @@ version: "2.1"
 
 services:
     cms-xmr:
-        image: ghcr.io/xibosignage/xibo-xmr:0.9
+        image: ghcr.io/xibosignage/xibo-xmr:0.9.1
         ports:
             - "9505:9505"
         restart: always

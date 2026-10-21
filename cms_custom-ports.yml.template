@@ -13,7 +13,7 @@ services:
         mem_limit: 1g
         env_file: config.env
     cms-xmr:
-        image: ghcr.io/xibosignage/xibo-xmr:0.9
+        image: ghcr.io/xibosignage/xibo-xmr:0.9.1
         ports:
             - "65500:9505"
         restart: always

@@ -13,7 +13,7 @@ services:
         env_file: config.env
         restart: always
     cms-xmr:
-        image: ghcr.io/xibosignage/xibo-xmr:0.9
+        image: ghcr.io/xibosignage/xibo-xmr:0.9.1
         ports:
             - "9505:9505"
         restart: always
