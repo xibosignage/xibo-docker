@@ -1,4 +1,12 @@
 # Xibo Digital Signage - Docker configuration files
+
+> [!IMPORTANT]
+> **This repository is retired.** From Xibo CMS 2026.11.71, the Docker Compose files ship with every xibo-cms release
+> as the `xibo-docker-<version>` download. Get it from the
+> [latest release](https://github.com/xibosignage/xibo-cms/releases/latest). If you installed from this repository,
+> follow [Migrating from xibo-docker](https://github.com/xibosignage/xibo-cms/tree/main#migrating-from-xibo-docker)
+> to switch. The releases here stay available for older versions.
+
 Xibo is a powerful Open Source Digital Signage platform with a web content management system and player applications 
 for various platforms (Android, ChromeOS, Linux, webOS, Windows and Tizen) to show content on your screens.
 
